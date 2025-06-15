@@ -326,13 +326,13 @@ function App() {
           </div>
         </div>
         <div className="simulation-buttons" style={{ marginTop: "20px" }}>
-          <button onClick={startGame} className="btn btn-restart">
-            <RotateCcw className="icon" />
-            JUGAR DE NUEVO
-          </button>
           <button onClick={backToMenu} className="btn btn-danger">
             <ArrowLeft className="icon" />
             VOLVER AL INICIO
+          </button>
+          <button onClick={startGame} className="btn btn-restart">
+            <RotateCcw className="icon" />
+            JUGAR DE NUEVO
           </button>
         </div>
       </div>
