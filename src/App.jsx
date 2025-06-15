@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
-import { MapPin, Star, RotateCcw, Play, Trophy, Heart } from "lucide-react";
+import { MapPin, Star, RotateCcw, ArrowLeft, Play, Trophy, Heart } from "lucide-react";
 
 const questions = [
   {
@@ -110,6 +110,10 @@ function App() {
     setScore(0);
     setLives(3);
   };
+
+  const backToMenu = () => {
+    setGameState("start");
+  }
 
   // UI Components
 
@@ -284,33 +288,53 @@ function App() {
     <div className="bg-finished flex-center">
       <div className="card card-large text-center">
         <div>
-          <Trophy
-            className="icon-large"
-            style={{ margin: "0 auto 20px", color: "#F1C40F" }}
-          />
-          <h2 className="title-secondary">
-            {score >= 3 ? "¡Felicitaciones!" : "¡Buen intento!"}
+          <div className="emoji">🏁</div>
+          <h2 className="title-secondary"
+            style={
+              { 
+                color: score >= (questions.length * 0.8).toFixed(0) ? "#4CAF50" :
+                score >= (questions.length * 0.5).toFixed(0) ? "#E0B800" : "#F76F6F",
+              }
+            }>
+            {score >= (questions.length*0.5).toFixed(0) ? "¡Felicitaciones!" : "¡Buen intento!"}
           </h2>
           <p className="subtitle">Juego terminado</p>
+          {lives == 0 && (
+            <div className="score-message">
+              <p>La respuesta correcta era <strong>{questions[currentQuestion]?.province}</strong></p>
+            </div>
+          )}
         </div>
         <div>
-          <div className="score-display">
+          <div className="score-display"
+            style={
+              { 
+                background: score >= (questions.length * 0.8).toFixed(0) ? "#4CAF50" :
+                score >= (questions.length * 0.5).toFixed(0) ? "#E0B800" : "#F76F6F",
+              }
+            }>
             <p className="final-score">
-              Tu puntuación: {score} de {questions.length}
+              Tu puntuación es {score} de {questions.length}
             </p>
           </div>
           <div className="score-message">
-            {score >= 4
-              ? "¡Eres un experto en geografía!"
-              : score >= 2
+            {score >= (questions.length * 0.8).toFixed(0)
+              ? "¡Increible! Eres un experto"
+              : score >= (questions.length * 0.5).toFixed(0)
               ? "¡Muy bien! Sigue practicando"
               : "¡No te rindas! Inténtalo otra vez"}
           </div>
         </div>
-        <button onClick={startGame} className="btn btn-restart">
-          <RotateCcw className="icon" />
-          Jugar de Nuevo
-        </button>
+        <div className="simulation-buttons" style={{ marginTop: "20px" }}>
+          <button onClick={startGame} className="btn btn-restart">
+            <RotateCcw className="icon" />
+            Jugar de Nuevo
+          </button>
+          <button onClick={backToMenu} className="btn btn-danger">
+            <ArrowLeft className="icon" />
+            Volver al Inicio
+          </button>
+        </div>
       </div>
     </div>
   );

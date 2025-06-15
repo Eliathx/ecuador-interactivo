@@ -89,7 +89,7 @@ body {
 }
 
 .bg-finished {
-  background: linear-gradient(135deg, #9C27B0 0%, #E91E63 50%, #FF5722 100%);
+  background: white;
   min-height: 100vh;
 }
 
@@ -110,7 +110,7 @@ body {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 
   border: 2px rgba(0, 0, 0, 0.1) solid;
-  padding: 40px;
+  padding: 64px;
   margin: 20px;
   transition: all 0.3s ease;
   position: relative;
@@ -206,7 +206,7 @@ body {
 /* Buttons */
 .btn {
   border: none;
-  border-radius: 50px;
+  border-radius: 16px;
   font-size: 1.2rem;
   font-weight: bold;
   padding: 15px 30px;
@@ -219,6 +219,9 @@ body {
   gap: 10px;
   position: relative;
   overflow: hidden;
+  line-height: auto;
+  width: 100%;
+  font-size: 1rem;
 }
 
 .btn::before {
@@ -269,9 +272,9 @@ body {
 }
 
 .btn-restart {
-  background: linear-gradient(135deg, #2196F3, #9C27B0);
+  background: linear-gradient(135deg, #F1C40F, #E0B800);
   color: white;
-  font-size: 1.3rem;
+  /* font-size: 1.3rem; */
   padding: 18px 35px;
   box-shadow: 0 10px 20px rgba(33, 150, 243, 0.3);
 }
@@ -442,9 +445,10 @@ body {
 }
 
 .emoji {
-  font-size: 4rem;
+  font-size: 7rem;
   margin-bottom: 20px;
   animation: emojiSpin 0.8s ease-in-out;
+  line-height: 75%;
 }
 
 @keyframes emojiSpin {
@@ -488,23 +492,24 @@ body {
 
 /* Score display */
 .score-display {
-  background: linear-gradient(135deg, #FFF9C4, #FFF176);
+  background: #FFF176;
   border-radius: 20px;
   padding: 25px;
   margin: 20px 0;
-  border: 3px solid #FFC107;
+  /* border: 3px solid #FFC107; */
 }
 
 .final-score {
   font-size: 2rem;
   font-weight: bold;
-  color: #2C3E50;
-  margin-bottom: 10px;
+  color: #ffffff;
+  /* margin-bottom: 10px; */
 }
 
 .score-message {
   font-size: 1.3rem;
   color: #5D4E75;
+  margin-bottom: 16px;
 }
 
 /* Star decoration */
