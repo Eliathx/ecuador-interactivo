@@ -1,13 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
-import {
-  MapPin,
-  Star,
-  RotateCcw,
-  Play,
-  Trophy,
-  Heart,
-} from "lucide-react";
+import { MapPin, Star, RotateCcw, Play, Trophy, Heart } from "lucide-react";
 
 const questions = [
   {
@@ -122,29 +115,52 @@ function App() {
 
   const StartScreen = () => (
     <div className="bg-start flex-center">
-      <div className="card card-large text-center">
-        <div>
-          <MapPin
-            className="icon-large icon-bounce"
-            style={{ margin: "0 auto 20px", color: "#2196F3" }}
-          />
-          <h1 className="title-main">¡Descubre Ecuador!</h1>
-          <p className="subtitle">Juego de Provincias</p>
-        </div>
-        <div>
-          <div className="star-decoration">
-            <Star className="star" />
-            <span className="instruction-title">Para niños aventureros</span>
-            <Star className="star" />
+      <div className="flex-column align-center">
+        <div className="card card-large text-center">
+          <div>
+            <img
+              src="/src/assets/imgs/ayaHuma.gif"
+              alt="Ecuador Logo"
+              style={{ width: "322px", marginBottom: "32px" }}
+            />
+            <h1 className="title-main">Ecuador Interactivo</h1>
+            <p className="subtitle">Para niños aventureros</p>
           </div>
-          <p className="instruction-text" style={{ marginBottom: "30px" }}>
-            Escucha las preguntas y toca la provincia correcta en el mapa
-          </p>
+          <button onClick={startGame} className="btn btn-primary">
+            <Play className="icon" />
+            Juguemos
+          </button>
         </div>
-        <button onClick={startGame} className="btn btn-primary">
-          <Play className="icon" />
-          ¡Empezar a Jugar!
-        </button>
+
+        <div className="card card-instruction text-center">
+          <h2 className="instruction-title">¿Cómo jugar?</h2>
+          <div className="instruction-steps">
+            <div className="step">
+              <img
+                src="/src/assets/imgs/leerVector.png"
+                alt="Leer"
+                className="step-icon"
+              />
+              <p>1. Lee la pregunta</p>
+            </div>
+            <div className="step">
+              <img
+                src="/src/assets/imgs/pressVector.png"
+                alt="Tocar"
+                className="step-icon"
+              />
+              <p>2. Presiona la respuesta</p>
+            </div>
+            <div className="step">
+              <img
+                src="/src/assets/imgs/trofeoPuntos.png"
+                alt="Ganar"
+                className="step-icon"
+              />
+              <p>3. Gana puntos</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -155,7 +171,11 @@ function App() {
         <div className="game-header flex-between">
           <div className="lives-container">
             <div
-              style={{ fontSize: "1.1rem", fontWeight: "600", color: "#2C3E50" }}
+              style={{
+                fontSize: "1.1rem",
+                fontWeight: "600",
+                color: "#2C3E50",
+              }}
             >
               Vidas:
             </div>
@@ -183,7 +203,9 @@ function App() {
                 {questions[currentQuestion]?.question}
               </h2>
               <div className="hint-box">
-                <p className="hint-text">💡 Pista: {questions[currentQuestion]?.hint}</p>
+                <p className="hint-text">
+                  💡 Pista: {questions[currentQuestion]?.hint}
+                </p>
               </div>
             </div>
 
@@ -191,16 +213,27 @@ function App() {
               <div className="map-instruction">
                 <MapPin
                   className="icon"
-                  style={{ width: "48px", height: "48px", color: "#9C27B0", margin: "0 auto 15px" }}
+                  style={{
+                    width: "48px",
+                    height: "48px",
+                    color: "#9C27B0",
+                    margin: "0 auto 15px",
+                  }}
                 />
-                <p className="instruction-title">Busca la provincia en el mapa</p>
-                <p className="instruction-text">Toca la provincia correcta en tu tablero</p>
+                <p className="instruction-title">
+                  Busca la provincia en el mapa
+                </p>
+                <p className="instruction-text">
+                  Toca la provincia correcta en tu tablero
+                </p>
               </div>
 
               {/* Opcional: botones de simulación para pruebas */}
               <div className="simulation-buttons" style={{ marginTop: "20px" }}>
                 <button
-                  onClick={() => handleAnswerBasedOnButton((currentQuestion + 1).toString())}
+                  onClick={() =>
+                    handleAnswerBasedOnButton((currentQuestion + 1).toString())
+                  }
                   className="btn btn-success"
                   disabled={gameState === "waiting"}
                 >
@@ -224,7 +257,9 @@ function App() {
 
   const FeedbackScreen = ({ isCorrect }) => (
     <div
-      className={isCorrect ? "bg-correct flex-center" : "bg-incorrect flex-center"}
+      className={
+        isCorrect ? "bg-correct flex-center" : "bg-incorrect flex-center"
+      }
     >
       <div className="card card-large feedback-card text-center">
         <div>
