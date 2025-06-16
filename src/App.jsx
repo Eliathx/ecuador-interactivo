@@ -122,17 +122,29 @@ function App() {
       <div className="flex-column align-center">
         <div className="card card-large text-center">
           <div>
+            <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", marginTop: "16px", marginBottom: "16px" }}>
+            <img
+              src="/src/assets/imgs/ayaHuma bn.gif"
+              alt="Ecuador Logo"
+              style={{ height: "100px", marginBottom: "0px", marginTop: "-32px" }}
+            />
             <img
               src="/src/assets/imgs/ayaHuma.gif"
               alt="Ecuador Logo"
-              style={{ width: "322px", marginBottom: "32px" }}
+              style={{ height: "200px", marginBottom: "0px", marginTop: "-32px" }}
             />
+            <img
+              src="/src/assets/imgs/ayaHuma bn.gif"
+              alt="Ecuador Logo"
+              style={{ height: "100px", marginBottom: "0px", marginTop: "-32px" }}
+            />
+            </div>
             <h1 className="title-main">Ecuador Interactivo</h1>
-            <p className="subtitle">Para niños aventureros</p>
+            <p className="subtitle">Con un toque educativo</p>
           </div>
           <button onClick={startGame} className="btn btn-primary">
             <Play className="icon" />
-            Juguemos
+            JUGAR
           </button>
         </div>
 
@@ -141,7 +153,7 @@ function App() {
           <div className="instruction-steps">
             <div className="step">
               <img
-                src="/src/assets/imgs/leerVector.png"
+                src="/src/assets/imgs/read.png"
                 alt="Leer"
                 className="step-icon"
               />
@@ -149,7 +161,7 @@ function App() {
             </div>
             <div className="step">
               <img
-                src="/src/assets/imgs/pressVector.png"
+                src="/src/assets/imgs/touchscreen.png"
                 alt="Tocar"
                 className="step-icon"
               />
@@ -157,7 +169,7 @@ function App() {
             </div>
             <div className="step">
               <img
-                src="/src/assets/imgs/trofeoPuntos.png"
+                src="/src/assets/imgs/medal.png"
                 alt="Ganar"
                 className="step-icon"
               />
