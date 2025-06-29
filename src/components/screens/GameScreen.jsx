@@ -8,7 +8,7 @@ import { useEffect } from "react";
 
 export const GameScreen = () => {
 
-    const { gameState, setGameState, lives, setTimeLeft, setScore, setLives, currentQuestion, timePerQuestion, timeLeft, score, setCurrentQuestion } = useContext(GameContext);
+    const { gameState, setGameState, lives, setTimeLeft, setScore, setLives, currentQuestion, timePerQuestion, timeLeft, score, setCurrentQuestion, playerAge, playerName } = useContext(GameContext);
 
     const handleAnswerBasedOnButton = (button) => {
         if (gameState !== "playing") return;
@@ -48,8 +48,6 @@ export const GameScreen = () => {
             }
         }
     };
-
-
 
     useEffect(() => {
         if (gameState === "playing") {
@@ -160,7 +158,7 @@ export const GameScreen = () => {
                                     ✓ Simular Correcto
                                 </button>
                                 <button
-                                    onClick={() => handleAnswerBasedOnButton("0")} // botón incorrecto
+                                    onClick={() => handleAnswerBasedOnButton("0")}
                                     className="btn btn-danger"
                                     disabled={gameState === "waiting"}
                                     style={{ marginLeft: "10px" }}

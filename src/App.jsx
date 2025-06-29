@@ -9,6 +9,7 @@ import { FinishedScreen } from "./components/screens/FinishedScreen";
 
 import { GameContext } from "./context/gameContext";
 import { useContext } from "react";
+import { Leaderboard } from "./components/Leaderboard";
 
 function App() {
 
@@ -37,6 +38,7 @@ function App() {
     <>
       {gameState === "start" && <StartScreen />}
       {gameState === "player-info" && <PlayerInfoScreen />}
+      {gameState === "leaderboard" && <Leaderboard />}
       {gameState === "playing" && <GameScreen />}
       {gameState === "correct" && <FeedbackScreen isCorrect={true} />}
       {gameState === "incorrect" && <FeedbackScreen isCorrect={false} />}

@@ -268,7 +268,7 @@ body {
 }
 
 .btn-primary {
-  background: #6d0a70;
+  background: #99329c;
   color: white;
   font-size: 1.5rem;
   padding: 20px 40px;
@@ -290,7 +290,6 @@ body {
 .btn-restart {
   background: linear-gradient(135deg, #F1C40F, #E0B800);
   color: white;
-  /* font-size: 1.3rem; */
   padding: 18px 35px;
   box-shadow: 0 10px 20px rgba(33, 150, 243, 0.3);
 }

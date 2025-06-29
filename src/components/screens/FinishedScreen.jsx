@@ -2,10 +2,37 @@ import { useContext } from 'react';
 import { GameContext } from '../../context/gameContext';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { questions } from '../../data/questions';
+import { useEffect, useRef } from 'react';
 
 export const FinishedScreen = () => {
 
-    const { score, currentQuestion, setCurrentQuestion, setGameState, setLives, setScore, lives } = useContext(GameContext);
+    const { score, playerAge, playerName, currentQuestion, setCurrentQuestion, setGameState, setLives, setScore, lives } = useContext(GameContext);
+    const effectRan = useRef(false);
+    useEffect(() => {
+        if (effectRan.current) return;
+        effectRan.current = true;
+
+        console.log("Guardando en leaderboard:", playerName, playerAge, score);
+        if (!playerName || !playerAge) return;
+
+        fetch("http://localhost:3002/api/leaderboard", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                name: playerName,
+                age: playerAge,
+                score: score,
+            }),
+        })
+            .then((res) => {
+                if (!res.ok) throw new Error("Error al guardar en leaderboard");
+                return res.json();
+            })
+            .then((data) => console.log("Guardado en leaderboard:", data))
+            .catch((err) => console.error(err));
+    }, []);
 
     const startGame = () => {
         setGameState("playing");

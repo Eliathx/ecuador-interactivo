@@ -1,0 +1,7 @@
+CREATE DATABASE IF NOT EXISTS ecuador_interactivo;
+CREATE TABLE IF NOT EXISTS leaderboard (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    age INT NOT NULL,
+    score INT NOT NULL
+);
