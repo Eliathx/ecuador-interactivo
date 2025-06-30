@@ -1,30 +1,38 @@
 import LinearProgress from '@mui/material/LinearProgress';
 import Box from '@mui/material/Box';
 import { MapPin, Trophy, Heart } from "lucide-react";
-import { useContext } from "react";
+import { useContext, useEffect, useRef, useCallback, useState } from "react";
 import { GameContext } from "../../context/gameContext";
 import { questions } from "../../data/questions";
-import { useEffect } from "react";
+import { TTSButton } from "../TTSButton";
 
 export const GameScreen = () => {
 
-    const { gameState, setGameState, lives, setTimeLeft, setScore, setLives, currentQuestion, timePerQuestion, timeLeft, score, setCurrentQuestion, playerAge, playerName } = useContext(GameContext);
+    const { 
+        playerName, gameState, setGameState, lives, setLives, 
+        currentQuestion, timePerQuestion, score, setCurrentQuestion,
+        startResponseTimer, updateScoreWithML
+    } = useContext(GameContext);
+    
+    // Timer local para evitar problemas de sincronización
+    const [timeLeft, setTimeLeft] = useState(timePerQuestion);
+    
+    const previousQuestionRef = useRef(-1); // Initialize with -1 to ensure first question plays
+    const timerRef = useRef(null); // Ref para manejar el timer
+    const processAnswerRef = useRef(null); // Ref para la función processAnswer
+    const ttsButtonRef = useRef(null); // Ref para controlar el TTSButton
 
-    const handleAnswerBasedOnButton = (button) => {
-        if (gameState !== "playing") return;
-
-        const correctProvinceIndex = currentQuestion + 1;
-
-        if (parseInt(button, 10) === correctProvinceIndex) {
-            processAnswer(true);
-        } else {
-            processAnswer(false);
+    const processAnswer = useCallback(async (isCorrect) => {
+        // Clear any existing timer when processing answer
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
         }
-    };
-
-    const processAnswer = (isCorrect) => {
+        
+        // Actualizar puntaje usando ML
+        await updateScoreWithML(isCorrect);
+        
         if (isCorrect) {
-            setScore((prev) => prev + 1);
             setGameState("correct");
             setTimeout(() => {
                 if (currentQuestion + 1 < questions.length) {
@@ -47,27 +55,91 @@ export const GameScreen = () => {
                 }, 2000);
             }
         }
+    }, [updateScoreWithML, currentQuestion, lives, setGameState, setCurrentQuestion, setLives]);
+
+    // Update the ref whenever processAnswer changes
+    useEffect(() => {
+        processAnswerRef.current = processAnswer;
+    }, [processAnswer]);
+
+    const handleAnswerBasedOnButton = (button) => {
+        if (gameState !== "playing") return;
+
+        const correctProvinceIndex = currentQuestion + 1;
+
+        if (parseInt(button, 10) === correctProvinceIndex) {
+            processAnswer(true);
+        } else {
+            processAnswer(false);
+        }
     };
 
     useEffect(() => {
+        // Clear any existing timer
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+        }
+        
         if (gameState === "playing") {
+            // Reset timer to full time
             setTimeLeft(timePerQuestion);
+            startResponseTimer(); // Iniciar cronómetro para ML
 
-            const interval = setInterval(() => {
-                setTimeLeft((prev) => {
-                    if (prev <= 1) {
-                        clearInterval(interval);
-                        processAnswer(false); // tiempo agotado = incorrecto
+            console.log(`⏱️ Iniciando timer para pregunta ${currentQuestion + 1} con ${timePerQuestion} segundos`);
+
+            timerRef.current = setInterval(() => {
+                setTimeLeft((prevTime) => {
+                    console.log(`⏱️ Timer: ${prevTime} → ${prevTime - 1}`);
+                    
+                    if (prevTime <= 1) {
+                        // Clear the timer immediately when time runs out
+                        console.log(`⏰ Tiempo agotado en pregunta ${currentQuestion + 1}`);
+                        if (timerRef.current) {
+                            clearInterval(timerRef.current);
+                            timerRef.current = null;
+                        }
+                        // Use the ref to call processAnswer to avoid dependency issues
+                        if (processAnswerRef.current) {
+                            processAnswerRef.current(false); // tiempo agotado = incorrecto
+                        }
                         return 0;
                     }
-                    return prev - 1;
+                    return prevTime - 1;
                 });
             }, 1000);
+        }
 
-            return () => clearInterval(interval);
+        return () => {
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+                timerRef.current = null;
+            }
+        };
+    }, [gameState, currentQuestion, timePerQuestion, startResponseTimer]);
+
+    // Solo logging para debug - TTS se maneja automáticamente
+    useEffect(() => {
+        if (gameState === "playing") {
+            if (previousQuestionRef.current !== currentQuestion) {
+                console.log(`🎵 Nueva pregunta detectada: ${previousQuestionRef.current} → ${currentQuestion}`);
+                previousQuestionRef.current = currentQuestion;
+            }
         }
     }, [gameState, currentQuestion]);
 
+    // Debug effect para monitorear el timer
+    useEffect(() => {
+        console.log(`🕐 TimeLeft actualizado: ${timeLeft}s (Estado: ${gameState}, Pregunta: ${currentQuestion + 1})`);
+    }, [timeLeft, gameState, currentQuestion]);
+
+    // Detener audio cuando se salga del estado "playing"
+    useEffect(() => {
+        if (gameState !== "playing" && ttsButtonRef.current) {
+            console.log(`🔇 Deteniendo audio por cambio de estado: ${gameState}`);
+            ttsButtonRef.current.stop();
+        }
+    }, [gameState]);
 
     return (
         <div className="bg-game">
@@ -120,6 +192,20 @@ export const GameScreen = () => {
                             <h2 className="question-text">
                                 {questions[currentQuestion]?.question}
                             </h2>
+                            
+                            {/* TTS Button con lógica integrada */}
+                            <TTSButton
+                                ref={ttsButtonRef}
+                                text={`${questions[currentQuestion]?.question}. Pista: ${questions[currentQuestion]?.hint}
+                                Busca la provincia en tu mapa y selecciónala.
+                                Tu puedes ${playerName}.`}
+                                disabled={gameState !== "playing"}
+                                className="question-tts-button"
+                                onPlayStart={(text) => console.log(`🎵 TTS iniciado para pregunta ${currentQuestion + 1}: "${text.substring(0, 50)}..."`)}
+                                onPlayEnd={() => console.log(`✅ TTS terminado para pregunta ${currentQuestion + 1}`)}
+                                onError={(error) => console.error(`❌ Error TTS en pregunta ${currentQuestion + 1}:`, error)}
+                            />
+                            
                             <div className="hint-box">
                                 <p className="hint-text">
                                     💡 Pista: {questions[currentQuestion]?.hint}

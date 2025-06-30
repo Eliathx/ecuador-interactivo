@@ -3,7 +3,7 @@ import { GameContext } from '../../context/gameContext';
 
 export const FeedbackScreen = ({ isCorrect }) => {
 
-    const { playerName, lives } = useContext(GameContext);
+    const { playerName} = useContext(GameContext);
 
     return (
         <div
@@ -24,7 +24,7 @@ export const FeedbackScreen = ({ isCorrect }) => {
                     </p>
                 </div>
                 <div className="feedback-score">
-                    {isCorrect ? `¡+1 punto!` : `Te quedan ${lives} vidas`}
+                    {isCorrect ? `¡Sigue así, ${playerName}!` : `¡No te rindas, ${playerName}!`}
                 </div>
             </div>
         </div>
