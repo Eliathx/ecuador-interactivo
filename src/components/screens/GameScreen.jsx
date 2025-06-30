@@ -1,18 +1,20 @@
 import LinearProgress from '@mui/material/LinearProgress';
 import Box from '@mui/material/Box';
 import { MapPin, Trophy, Heart } from "lucide-react";
-import { useContext } from "react";
+import { useContext, useEffect, useRef, useCallback } from "react";
 import { GameContext } from "../../context/gameContext";
 import { questions } from "../../data/questions";
-import { useEffect } from "react";
+import { TTSButton } from "../TTSButton";
 
 export const GameScreen = () => {
 
     const { 
-        gameState, setGameState, lives, setTimeLeft, setScore, setLives, 
+        gameState, setGameState, lives, setTimeLeft, setLives, 
         currentQuestion, timePerQuestion, timeLeft, score, setCurrentQuestion,
         startResponseTimer, updateScoreWithML
     } = useContext(GameContext);
+    
+    const previousQuestionRef = useRef(-1); // Initialize with -1 to ensure first question plays
 
     const handleAnswerBasedOnButton = (button) => {
         if (gameState !== "playing") return;
@@ -26,7 +28,7 @@ export const GameScreen = () => {
         }
     };
 
-    const processAnswer = async (isCorrect) => {
+    const processAnswer = useCallback(async (isCorrect) => {
         // Actualizar puntaje usando ML
         await updateScoreWithML(isCorrect);
         
@@ -53,7 +55,9 @@ export const GameScreen = () => {
                 }, 2000);
             }
         }
-    };
+    }, [updateScoreWithML, currentQuestion, lives, setGameState, setCurrentQuestion, setLives]);
+
+
 
     useEffect(() => {
         if (gameState === "playing") {
@@ -73,8 +77,17 @@ export const GameScreen = () => {
 
             return () => clearInterval(interval);
         }
-    }, [gameState, currentQuestion]);
+    }, [gameState, currentQuestion, processAnswer, setTimeLeft, timePerQuestion, startResponseTimer]);
 
+    // Solo logging para debug - TTS se maneja automáticamente
+    useEffect(() => {
+        if (gameState === "playing") {
+            if (previousQuestionRef.current !== currentQuestion) {
+                console.log(`🎵 Nueva pregunta detectada: ${previousQuestionRef.current} → ${currentQuestion}`);
+                previousQuestionRef.current = currentQuestion;
+            }
+        }
+    }, [gameState, currentQuestion]);
 
     return (
         <div className="bg-game">
@@ -127,6 +140,17 @@ export const GameScreen = () => {
                             <h2 className="question-text">
                                 {questions[currentQuestion]?.question}
                             </h2>
+                            
+                            {/* TTS Button con lógica integrada */}
+                            <TTSButton
+                                text={`${questions[currentQuestion]?.question}. Pista: ${questions[currentQuestion]?.hint}`}
+                                disabled={gameState !== "playing"}
+                                className="question-tts-button"
+                                onPlayStart={(text) => console.log(`🎵 TTS iniciado para pregunta ${currentQuestion + 1}: "${text.substring(0, 50)}..."`)}
+                                onPlayEnd={() => console.log(`✅ TTS terminado para pregunta ${currentQuestion + 1}`)}
+                                onError={(error) => console.error(`❌ Error TTS en pregunta ${currentQuestion + 1}:`, error)}
+                            />
+                            
                             <div className="hint-box">
                                 <p className="hint-text">
                                     💡 Pista: {questions[currentQuestion]?.hint}
