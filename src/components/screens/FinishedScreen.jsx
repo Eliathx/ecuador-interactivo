@@ -4,6 +4,9 @@ import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { questions } from '../../data/questions';
 import { useEffect, useRef } from 'react';
 
+const UMBRAL_BUENO = 70;
+const UMBRAL_MEDIO = 50;
+
 export const FinishedScreen = () => {
 
     const { score, playerAge, playerName, currentQuestion, setCurrentQuestion, setGameState, setLives, setScore, lives } = useContext(GameContext);
@@ -53,11 +56,11 @@ export const FinishedScreen = () => {
                     <h2 className="title-secondary"
                         style={
                             {
-                                color: score >= (questions.length * 0.8).toFixed(0) ? "#4CAF50" :
-                                    score >= (questions.length * 0.5).toFixed(0) ? "#E0B800" : "#F76F6F",
+                                color: score >= UMBRAL_BUENO ? "#4CAF50" :
+                                    score >= UMBRAL_MEDIO ? "#E0B800" : "#F76F6F",
                             }
                         }>
-                        {score >= (questions.length * 0.5).toFixed(0) ? "¡Felicitaciones!" : "¡Buen intento!"}
+                        {score >= (600 * 0.5).toFixed(0) ? "¡Felicitaciones!" : "¡Buen intento!"}
                     </h2>
                     <p className="subtitle">Juego terminado</p>
                     {lives == 0 && (
@@ -70,20 +73,20 @@ export const FinishedScreen = () => {
                     <div className="score-display"
                         style={
                             {
-                                background: score >= (questions.length * 0.8).toFixed(0) ? "#4CAF50" :
-                                    score >= (questions.length * 0.5).toFixed(0) ? "#E0B800" : "#F76F6F",
+                                background: score >= UMBRAL_BUENO ? "#4CAF50" :
+                                    score >= UMBRAL_MEDIO ? "#E0B800" : "#F76F6F",
                             }
                         }>
                         <p className="final-score">
-                            Tu puntuación es {score} de {questions.length}
+                            Tu puntuación total es {score.toFixed(1)} puntos
                         </p>
                     </div>
                     <div className="score-message">
-                        {score >= (questions.length * 0.8).toFixed(0)
-                            ? "¡Increible! Eres un experto"
-                            : score >= (questions.length * 0.5).toFixed(0)
-                                ? "¡Muy bien! Sigue practicando"
-                                : "¡No te rindas! Inténtalo otra vez"}
+                        {score >= UMBRAL_BUENO
+                            ? "🏆 ¡Increíble! Eres un experto en geografía ecuatoriana"
+                            : score >= UMBRAL_MEDIO
+                                ? "🥉 ¡Muy bien! Tienes buen conocimiento del Ecuador"
+                                : "💪 ¡No te rindas! Con práctica mejorarás mucho"}
                     </div>
                 </div>
                 <div className="simulation-buttons" style={{ marginTop: "20px" }}>

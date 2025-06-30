@@ -8,7 +8,11 @@ import { useEffect } from "react";
 
 export const GameScreen = () => {
 
-    const { gameState, setGameState, lives, setTimeLeft, setScore, setLives, currentQuestion, timePerQuestion, timeLeft, score, setCurrentQuestion, playerAge, playerName } = useContext(GameContext);
+    const { 
+        gameState, setGameState, lives, setTimeLeft, setScore, setLives, 
+        currentQuestion, timePerQuestion, timeLeft, score, setCurrentQuestion,
+        startResponseTimer, updateScoreWithML
+    } = useContext(GameContext);
 
     const handleAnswerBasedOnButton = (button) => {
         if (gameState !== "playing") return;
@@ -22,9 +26,11 @@ export const GameScreen = () => {
         }
     };
 
-    const processAnswer = (isCorrect) => {
+    const processAnswer = async (isCorrect) => {
+        // Actualizar puntaje usando ML
+        await updateScoreWithML(isCorrect);
+        
         if (isCorrect) {
-            setScore((prev) => prev + 1);
             setGameState("correct");
             setTimeout(() => {
                 if (currentQuestion + 1 < questions.length) {
@@ -52,6 +58,7 @@ export const GameScreen = () => {
     useEffect(() => {
         if (gameState === "playing") {
             setTimeLeft(timePerQuestion);
+            startResponseTimer(); // Iniciar cronómetro para ML
 
             const interval = setInterval(() => {
                 setTimeLeft((prev) => {

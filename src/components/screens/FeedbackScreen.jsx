@@ -23,9 +23,9 @@ export const FeedbackScreen = ({ isCorrect }) => {
                             : "Inténtalo de nuevo"}
                     </p>
                 </div>
-                <div className="feedback-score">
+                {/* <div className="feedback-score">
                     {isCorrect ? `¡+1 punto!` : `Te quedan ${lives} vidas`}
-                </div>
+                </div> */}
             </div>
         </div>
     );

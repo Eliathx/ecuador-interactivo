@@ -40,3 +40,124 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Estilos para la nueva interfaz de puntaje con predicción ML */
+.score-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.current-score {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #2C3E50;
+}
+
+.predicted-score {
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.score-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 6px 10px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-width: 140px;
+}
+
+.trophy {
+  color: #FFD700;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+/* Estilos para el puntaje total prominente */
+.total-score-display {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px 30px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  min-width: 300px;
+}
+
+.score-header {
+  margin-bottom: 10px;
+}
+
+.total-score-number {
+  font-size: 3rem;
+  font-weight: 900;
+  margin: 0;
+  line-height: 1;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.score-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  opacity: 0.9;
+}
+
+.last-score-info {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px 15px;
+  border-radius: 15px;
+  margin: 10px 0 5px;
+}
+
+.score-progress {
+  opacity: 0.8;
+}
+
+.total-score {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #2C3E50;
+}
+
+.score-breakdown {
+  font-size: 0.75rem;
+  color: #666;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Estilos para la pantalla final mejorada */
+.final-breakdown {
+  font-size: 0.9rem;
+  margin-top: 10px;
+  line-height: 1.4;
+  opacity: 0.9;
+}
+
+.final-score {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* Estilos para animaciones de puntaje */
+@keyframes scoreUpdate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.total-score-number.updating {
+  animation: scoreUpdate 0.5s ease-in-out;
+}
