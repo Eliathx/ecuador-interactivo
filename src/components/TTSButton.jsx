@@ -304,7 +304,25 @@ export const TTSButton = forwardRef(({
             } else {
                 const errorText = await response.text();
                 console.error('❌ Error de ElevenLabs API:', response.status, errorText);
-                throw new Error(`ElevenLabs API error: ${response.status} - ${errorText}`);
+                
+                // Parse error details for better user feedback
+                let errorDetails = errorText;
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    if (errorJson.detail && errorJson.detail.message) {
+                        errorDetails = errorJson.detail.message;
+                    }
+                } catch {
+                    // Keep original error text if parsing fails
+                }
+                
+                // Special handling for common API errors
+                if (response.status === 401) {
+                    console.warn('🔑 ElevenLabs API key issue - consider using browser TTS only');
+                    // Could set a flag here to disable ElevenLabs for this session
+                }
+                
+                throw new Error(`ElevenLabs API error: ${response.status} - ${errorDetails}`);
             }
         } catch (error) {
             // Verificar si fue detenido manualmente antes de hacer fallback
