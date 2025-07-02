@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "backend": "node src/server.js",
     "arduino": "node sever.js",
-    "start:full": "concurrently \"npm run backend\" \"npm run arduino\" \"npm run dev\""
+    "start:full": "concurrently \"npm run backend\" \"npm run arduino\" \"npm run dev\"",
+    "close-serial": "node close-serial.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

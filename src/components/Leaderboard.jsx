@@ -36,7 +36,7 @@ export const Leaderboard = () => {
     const getRankClass = (index) => {
         const rank = index + 1;
         if (rank <= 3) {
-            return `rank-cell top-3 rank-${rank}`;
+            return `rank-cell top-3 rank-${rank} black`;
         }
         return "rank-cell";
     };
@@ -105,7 +105,7 @@ export const Leaderboard = () => {
                             <table className="leaderboard-table">
                                 <thead>
                                     <tr>
-                                        <th>Posición</th>
+                                        {/* <th>Posición</th> */}
                                         <th>Jugador</th>
                                         <th>Edad</th>
                                         <th>Puntuación</th>
@@ -114,9 +114,9 @@ export const Leaderboard = () => {
                                 <tbody>
                                     {datos.map((item, index) => (
                                         <tr key={`${item.name}-${index}`}>
-                                            <td className={getRankClass(index)}>
+                                            {/* <td className={getRankClass(index)} style={{color:"black !important"}}>
                                                 {index + 1}
-                                            </td>
+                                            </td> */}
                                             <td className="name-cell">{item.name}</td>
                                             <td className="age-cell">{item.age} años</td>
                                             <td className="score-cell">

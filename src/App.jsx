@@ -13,26 +13,29 @@ import { Leaderboard } from "./components/Leaderboard";
 
 function App() {
 
-  const { gameState, lives, currentQuestion } = useContext(GameContext);
+  const { gameState, handleAnswerBasedOnButton } = useContext(GameContext);
 
   const socketRef = useRef(null);
 
   useEffect(() => {
     socketRef.current = io("http://localhost:3001");
 
-    socketRef.current.on("arduino-input", ({ button }) => {
+    const handleArduinoInput = ({ button }) => {
       console.log("Botón Arduino recibido:", button);
       handleAnswerBasedOnButton(button);
-    });
+    };
+
+    socketRef.current.on("arduino-input", handleArduinoInput);
 
     socketRef.current.on("connect_error", (err) => {
       console.error("Error de conexión Socket:", err);
     });
 
     return () => {
+      socketRef.current.off("arduino-input", handleArduinoInput);
       socketRef.current.disconnect();
     };
-  }, [gameState, currentQuestion, lives]);
+  }, [handleAnswerBasedOnButton]);
 
   return (
     <>

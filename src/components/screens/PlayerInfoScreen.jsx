@@ -3,9 +3,12 @@ import { GameContext } from "../../context/gameContext";
 
 export const PlayerInfoScreen = () => {
 
-    const { setGameState, setScore, setLives, setCurrentQuestion, setPlayerName, setPlayerAge } = useContext(GameContext);
+    const { setGameState, setScore, setLives, setCurrentQuestion, setPlayerName, setPlayerAge, initializeGame } = useContext(GameContext);
 
     const startGame = () => {
+        // Inicializar preguntas aleatorias
+        initializeGame();
+        // Comenzar el juego
         setGameState("playing");
         setCurrentQuestion(0);
         setScore(0);

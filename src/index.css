@@ -554,7 +554,9 @@ body {
     transform: scale(1.2);
   }
 }
-
+.black{
+  color: black !important ;
+}
 /* Responsive design */
 @media (max-width: 768px) {
   .title-main {

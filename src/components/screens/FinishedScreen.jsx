@@ -63,11 +63,11 @@ export const FinishedScreen = () => {
                         {score >= (questions.length * 10 * 0.5).toFixed(0) ? "¡Felicitaciones!" : "¡Buen intento!"}
                     </h2>
                     <p className="subtitle">Juego terminado</p>
-                    {lives == 0 && (
+                    {/* {lives == 0 && (
                         <div className="score-message">
-                            <p>La respuesta correcta era <strong>{questions[currentQuestion]?.province}</strong></p>
+                             <p>La respuesta correcta era <strong>{questions[currentQuestion]?.province}</strong></p>
                         </div>
-                    )}
+                    )} */}
                 </div>
                 <div>
                     <div className="score-display"
