@@ -129,6 +129,13 @@ export const GameScreen = () => {
         }
     }, [gameState]);
 
+    // Function to handle simulation button clicks
+    const handleAnswerBasedOnButton = useCallback((buttonId) => {
+        const correctAnswer = selectedQuestions[currentQuestion]?.correctAnswer;
+        const isCorrect = buttonId === correctAnswer?.toString();
+        processAnswer(isCorrect);
+    }, [selectedQuestions, currentQuestion, processAnswer]);
+
     // Protección: si no hay preguntas seleccionadas, mostrar cargando
     if (!selectedQuestions || selectedQuestions.length === 0) {
         return (
@@ -215,7 +222,7 @@ export const GameScreen = () => {
                             
                             <div className="hint-box">
                                 <p className="hint-text">
-                                    💡 Pista: {selectedQuestions[currentQuestion]?.hint || "Cargando pista..."}
+                                    💡 <strong>Pista:</strong> {selectedQuestions[currentQuestion]?.hint || "Cargando pista..."}
                                 </p>
                             </div>
                         </div>
@@ -228,19 +235,19 @@ export const GameScreen = () => {
                                         width: "48px",
                                         height: "48px",
                                         color: "#9C27B0",
-                                        margin: "0 auto 15px",
+                                        margin: "0 auto 0",
                                     }}
                                 />
                                 <p className="instruction-title">
-                                    Busca la provincia en el mapa
+                                    Busca la provincia en tu mapa
                                 </p>
                                 <p className="instruction-text">
-                                    Toca la provincia correcta en tu tablero
+                                    Y selecciónala para responder la pregunta.
                                 </p>
                             </div>
 
                             {/* Opcional: botones de simulación para pruebas */}
-                            {/* <div className="simulation-buttons" style={{ marginTop: "20px" }}>
+                            <div className="simulation-buttons" style={{ marginTop: "20px" }}>
                                 <button
                                     onClick={() => {
                                         const correctAnswer = selectedQuestions[currentQuestion]?.correctAnswer;
@@ -261,7 +268,7 @@ export const GameScreen = () => {
                                 >
                                     ✗ Simular Incorrecto
                                 </button>
-                            </div> */}
+                            </div>
                         </div>
                     </div>
                 </div>

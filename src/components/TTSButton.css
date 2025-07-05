@@ -38,7 +38,8 @@
   font-weight: 600 !important;
   transition: all 0.3s ease !important;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
-  margin: 17px auto 15px !important; /* Margen superior aumentado para compensar movimiento */
+  /* margin: 17px auto 15px !important;  */
+  /* Margen superior aumentado para compensar movimiento */
   min-width: 140px !important;
   height: 48px !important; /* Altura fija para mantener consistencia */
   position: relative !important;
@@ -196,7 +197,7 @@
 
 /* Estilos específicos por contexto */
 .question-tts-button {
-  margin: 15px auto;
+  margin: auto;
   display: flex;
   justify-content: center;
 }

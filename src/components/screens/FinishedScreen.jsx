@@ -60,7 +60,10 @@ export const FinishedScreen = () => {
                                     score >= UMBRAL_MEDIO ? "#E0B800" : "#F76F6F",
                             }
                         }>
-                        {score >= (questions.length * 10 * 0.5).toFixed(0) ? "¡Felicitaciones!" : "¡Buen intento!"}
+                        {score >= UMBRAL_BUENO ? "¡Felicitaciones!" :
+                            score >= UMBRAL_MEDIO ? "¡Buen trabajo!" :
+                            "¡Buen intento!"}
+                        {/* {score >= (questions.length * 10 * 0.5).toFixed(0) ? "¡Felicitaciones!" : "¡Buen intento!"} */}
                     </h2>
                     <p className="subtitle">Juego terminado</p>
                     {/* {lives == 0 && (

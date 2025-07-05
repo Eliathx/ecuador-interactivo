@@ -33,13 +33,13 @@ export const Leaderboard = () => {
         fetchLeaderboard();
     }, []);
 
-    const getRankClass = (index) => {
-        const rank = index + 1;
-        if (rank <= 3) {
-            return `rank-cell top-3 rank-${rank} black`;
-        }
-        return "rank-cell";
-    };
+    // const getRankClass = (index) => {
+    //     const rank = index + 1;
+    //     if (rank <= 3) {
+    //         return `rank-cell top-3 rank-${rank} black`;
+    //     }
+    //     return "rank-cell";
+    // };
 
     const formatScore = (score) => {
         return new Intl.NumberFormat('es-ES').format(score);

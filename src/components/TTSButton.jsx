@@ -2,6 +2,40 @@ import React, { useState, useEffect, useCallback, forwardRef, useRef } from 'rea
 import { Volume2, VolumeX, Loader2 } from 'lucide-react';
 import './TTSButton.css';
 
+// Variable global para manejar el estado de audio globalmente y evitar solapamiento
+let globalAudioManager = {
+    currentAudio: null,
+    currentAudioUrl: null,
+    isPlaying: false,
+    stopAllAudio: () => {
+        if (globalAudioManager.currentAudio) {
+            if (typeof globalAudioManager.currentAudio.stopManually === 'function') {
+                globalAudioManager.currentAudio.stopManually();
+            } else {
+                globalAudioManager.currentAudio.pause();
+                globalAudioManager.currentAudio.currentTime = 0;
+            }
+            globalAudioManager.currentAudio = null;
+        }
+        
+        if (globalAudioManager.currentAudioUrl) {
+            try {
+                URL.revokeObjectURL(globalAudioManager.currentAudioUrl);
+            } catch {
+                // Silently ignore
+            }
+            globalAudioManager.currentAudioUrl = null;
+        }
+        
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
+        
+        globalAudioManager.isPlaying = false;
+        console.log('🌐 Global audio manager: Todo el audio detenido');
+    }
+};
+
 export const TTSButton = forwardRef(({ 
     text, 
     disabled = false,
@@ -53,6 +87,9 @@ export const TTSButton = forwardRef(({
                 window.speechSynthesis.cancel();
             }
             
+            // Limpiar del manager global
+            globalAudioManager.stopAllAudio();
+            
             // Limpiar URL actual si existe
             if (currentAudioUrl) {
                 try {
@@ -71,6 +108,8 @@ export const TTSButton = forwardRef(({
     }, [currentAudio, currentAudioUrl]);
 
     const stopCurrentAudio = useCallback((resetButton = true, isManualStop = false) => {
+        console.log(`🛑 stopCurrentAudio llamado - resetButton: ${resetButton}, isManualStop: ${isManualStop}`);
+        
         // Marcar como detenido manualmente si se especifica
         if (isManualStop) {
             isManuallyStoppedRef.current = true;
@@ -79,12 +118,14 @@ export const TTSButton = forwardRef(({
         
         // Stop ElevenLabs audio
         if (currentAudio) {
+            console.log('🔇 Deteniendo audio de ElevenLabs...');
             // Usar la función especial para marcar como detenido manualmente
             if (typeof currentAudio.stopManually === 'function') {
-                console.log('🔇 Deteniendo audio de ElevenLabs manualmente...');
+                console.log('🔇 Usando stopManually() personalizado...');
                 currentAudio.stopManually();
             } else {
                 // Fallback para audios que no tienen la función
+                console.log('🔇 Usando pause() y currentTime=0...');
                 currentAudio.pause();
                 currentAudio.currentTime = 0;
             }
@@ -93,7 +134,18 @@ export const TTSButton = forwardRef(({
         
         // Stop browser TTS
         if ('speechSynthesis' in window) {
+            console.log('🔇 Cancelando browser TTS...');
             window.speechSynthesis.cancel();
+        }
+        
+        // Limpiar del manager global también
+        globalAudioManager.stopAllAudio();
+        
+        // Limpiar timer de auto-play si existe
+        if (autoPlayTimerRef.current) {
+            console.log('🧹 Limpiando timer de auto-play...');
+            clearTimeout(autoPlayTimerRef.current);
+            autoPlayTimerRef.current = null;
         }
         
         setIsPlaying(false);
@@ -103,6 +155,8 @@ export const TTSButton = forwardRef(({
         if (resetButton) {
             setShowStopButton(false); // Resetear el botón a "Escuchar"
         }
+        
+        console.log('✅ stopCurrentAudio completado');
     }, [currentAudio]);
 
     const fallbackToBrowserTTS = useCallback((textToSpeak) => {
@@ -173,13 +227,23 @@ export const TTSButton = forwardRef(({
             // Resetear bandera de stop manual al iniciar nueva reproducción
             isManuallyStoppedRef.current = false;
             
-            // Stop any current audio AND browser TTS FIRST
+            // CRÍTICO: Stop any current audio AND browser TTS FIRST para evitar solapamiento
+            console.log('🛑 CRÍTICO: Deteniendo cualquier audio actual para evitar solapamiento...');
+            
+            // Detener audio global primero
+            globalAudioManager.stopAllAudio();
+            
+            // Luego detener audio local
             stopCurrentAudio(false); // No resetear el botón aquí
             
             // Ensure browser TTS is cancelled before starting ElevenLabs
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
+                console.log('🔇 Browser TTS cancelado para evitar solapamiento');
             }
+
+            // Pequeño delay para asegurar que el audio anterior se detuvo completamente
+            await new Promise(resolve => setTimeout(resolve, 100));
 
             // THEN set the loading and button states
             setIsLoading(true);
@@ -239,6 +303,11 @@ export const TTSButton = forwardRef(({
                 const audioUrl = URL.createObjectURL(audioBlob);
                 const audio = new Audio(audioUrl);
                 
+                // Registrar audio en el manager global
+                globalAudioManager.currentAudio = audio;
+                globalAudioManager.currentAudioUrl = audioUrl;
+                globalAudioManager.isPlaying = true;
+                
                 // Flag to track if audio played successfully
                 let audioPlayedSuccessfully = false;
                 let manuallyStopped = false; // Flag para detectar parada manual
@@ -254,6 +323,12 @@ export const TTSButton = forwardRef(({
                     setIsPlaying(false);
                     setShowStopButton(false); // Resetear a "Escuchar" cuando termine
                     setCurrentAudio(null);
+                    
+                    // Limpiar del manager global
+                    globalAudioManager.currentAudio = null;
+                    globalAudioManager.currentAudioUrl = null;
+                    globalAudioManager.isPlaying = false;
+                    
                     // No limpiar la URL aquí, se limpiará cuando se desmonte el componente o se cree un nuevo audio
                     onPlayEnd?.();
                 };
@@ -271,6 +346,12 @@ export const TTSButton = forwardRef(({
                         setIsPlaying(false);
                         setShowStopButton(false); // Resetear a "Escuchar" en caso de error
                         setCurrentAudio(null);
+                        
+                        // Limpiar del manager global
+                        globalAudioManager.currentAudio = null;
+                        globalAudioManager.currentAudioUrl = null;
+                        globalAudioManager.isPlaying = false;
+                        
                         console.log('🔄 Audio nunca se reprodujo exitosamente, usando fallback...');
                         fallbackToBrowserTTS(textToSpeak);
                     } else {
@@ -356,6 +437,20 @@ export const TTSButton = forwardRef(({
         
         const textToPlay = text; // Capturar el texto antes de programar
         
+        // IMPORTANTE: Detener cualquier audio actual INMEDIATAMENTE para evitar solapamiento
+        console.log('🛑 Deteniendo audio actual para evitar solapamiento...');
+        
+        // Detener audio global primero
+        globalAudioManager.stopAllAudio();
+        
+        // Luego detener audio local
+        stopCurrentAudio(true, true); // resetButton=true, isManualStop=true
+        
+        // Detener también el TTS del navegador
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
+        
         // NO actualizar lastTextRef.current aquí - solo cuando se ejecute realmente
         
         // Limpiar cualquier timer anterior
@@ -410,7 +505,13 @@ export const TTSButton = forwardRef(({
     React.useImperativeHandle(ref, () => ({
         stop: () => {
             console.log('🛑 Audio detenido desde el exterior (cambio de pantalla)');
+            
+            // Detener audio global primero
+            globalAudioManager.stopAllAudio();
+            
+            // Luego detener audio local
             stopCurrentAudio(true, true); // resetButton=true, isManualStop=true
+            
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
             }
