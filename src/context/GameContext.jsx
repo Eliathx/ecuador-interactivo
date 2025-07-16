@@ -77,6 +77,12 @@ export const GameProvider = ({ children, timePerQuestion }) => {
     
     /** @type {[number|null, Function]} Timestamp del inicio de respuesta para calcular tiempo de reacción */
     const [responseStartTime, setResponseStartTime] = useState(null);
+    
+    /** @type {[number, Function]} Racha de aciertos consecutivos */
+    const [currentStreak, setCurrentStreak] = useState(0);
+    
+    /** @type {[string, Function]} Dificultad predicha para la siguiente pregunta */
+    const [nextQuestionDifficulty, setNextQuestionDifficulty] = useState("media");
 
     // ===== FUNCIONES PRINCIPALES =====
 
@@ -95,6 +101,8 @@ export const GameProvider = ({ children, timePerQuestion }) => {
         setCurrentQuestion(0);
         setScore(0);
         setLives(3);
+        setCurrentStreak(0);
+        setNextQuestionDifficulty("baja");
     }, []);
 
     /**
@@ -104,31 +112,36 @@ export const GameProvider = ({ children, timePerQuestion }) => {
      * @function startResponseTimer
      * @returns {void}
      */
-    const startResponseTimer = () => {
+    const startResponseTimer = useCallback(() => {
         setResponseStartTime(Date.now());
-    };
+    }, []);
 
     /**
-     * Sistema de puntuación inteligente con Machine Learning
+     * Sistema de dificultad adaptativa con Machine Learning
      * 
      * Envía datos de la respuesta actual al backend de ML para obtener
-     * una puntuación basada en múltiples factores:
+     * la dificultad recomendada para la siguiente pregunta basada en:
      * - Tiempo de respuesta
      * - Corrección de la respuesta
      * - Número de pregunta actual
      * - Vidas restantes
      * - Edad del jugador
-     * - Dificultad de la provincia
+     * - Racha de aciertos
+     * - Dificultad de la pregunta anterior
      * 
      * @async
-     * @function updateScoreWithML
-     * @param {boolean} isCorrect - Si la respuesta fue correcta o no
+     * @function updateDifficultyWithML
+     * @param {boolean} isCorrect - Si la respuesta fue correcta
      * @returns {Promise<void>}
      */
-    const updateScoreWithML = async (isCorrect) => {
+    const updateDifficultyWithML = async (isCorrect) => {
         try {
             // Calcular tiempo de respuesta desde que inició el timer
             const responseTime = responseStartTime ? (Date.now() - responseStartTime) / 1000 : timePerQuestion;
+            
+            // Actualizar racha de aciertos
+            const newStreak = isCorrect ? currentStreak + 1 : 0;
+            setCurrentStreak(newStreak);
             
             // Preparar datos para el modelo de ML
             const playerData = {
@@ -137,25 +150,50 @@ export const GameProvider = ({ children, timePerQuestion }) => {
                 isCorrect,
                 livesRemaining: lives,
                 playerAge: parseInt(playerAge) || 8,
-                selectedQuestions // Pasar las preguntas seleccionadas para calcular dificultad
+                selectedQuestions, // Pasar las preguntas seleccionadas para calcular dificultad
+                currentStreak: newStreak
             };
             console.log('📊 Enviando datos al backend:', playerData);
             
             // Obtener predicción del modelo
-            const prediction = await apiService.updateGameScore(playerData);
-            const questionScore = prediction.puntos_estimados;
+            const prediction = await apiService.updateGameDifficulty(playerData);
             
-            // Actualizar el puntaje total acumulado
-            setScore(prev => prev + questionScore);
+            // Actualizar la dificultad para la siguiente pregunta
+            if (prediction.dificultad_siguiente_pregunta) {
+                setNextQuestionDifficulty(prediction.dificultad_siguiente_pregunta);
+            }
             
-            console.log('🤖 Puntaje de esta pregunta:', questionScore);
-            console.log('📈 Puntaje total actualizado');
+            // Actualizar puntaje basado en la dificultad y corrección
+            const baseScore = isCorrect ? 10 : 0;
+            const difficultyMultiplier = getDifficultyMultiplier(prediction.dificultad_siguiente_pregunta);
+            const timeBonus = Math.max(0, 10 - responseTime); // Bonus por rapidez
+            const totalScore = Math.round(baseScore * difficultyMultiplier + timeBonus);
+            
+            setScore(prev => prev + totalScore);
+            
+            console.log('** Puntaje de esta pregunta:', totalScore);
+            console.log('*** Puntaje total actualizado');
             
         } catch (error) {
-            console.error('❌ Error al predecir puntaje, usando fallback:', error);
-            // Fallback: usar puntaje simple si falla el ML
+            console.error('Error al actualizar dificultad con ML:', error);
+            // Fallback: usar puntuación simple si falla el ML
             const fallbackScore = isCorrect ? 10 : 0;
             setScore(prev => prev + fallbackScore);
+            setCurrentStreak(isCorrect ? currentStreak + 1 : 0);
+        }
+    };
+
+    /**
+     * Obtiene multiplicador de puntaje basado en dificultad
+     * @param {string} difficulty - Dificultad de la pregunta
+     * @returns {number} Multiplicador de puntaje
+     */
+    const getDifficultyMultiplier = (difficulty) => {
+        switch (difficulty) {
+            case "baja": return 1.0;
+            case "media": return 1.5;
+            case "alta": return 2.0;
+            default: return 1.0;
         }
     };
 
@@ -242,7 +280,11 @@ export const GameProvider = ({ children, timePerQuestion }) => {
                 
                 // ===== MACHINE LEARNING =====
                 startResponseTimer,          // Función para iniciar cronómetro de respuesta
-                updateScoreWithML,           // Función de puntuación inteligente
+                updateDifficultyWithML,      // Función de dificultad adaptativa
+                currentStreak,               // Racha de aciertos consecutivos
+                setCurrentStreak,            // Función para actualizar racha
+                nextQuestionDifficulty,      // Dificultad predicha para siguiente pregunta
+                setNextQuestionDifficulty,   // Función para actualizar dificultad siguiente
                 
                 // ===== ARDUINO Y HARDWARE =====
                 handleAnswerBasedOnButton,   // Función para manejar respuestas del Arduino

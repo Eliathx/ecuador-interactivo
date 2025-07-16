@@ -10,8 +10,8 @@ export const GameScreen = () => {
     const { 
         playerName, gameState, setGameState, lives, setLives, 
         currentQuestion, timePerQuestion, score, setCurrentQuestion,
-        startResponseTimer, updateScoreWithML, processAnswerRef,
-        selectedQuestions
+        startResponseTimer, updateDifficultyWithML, processAnswerRef,
+        selectedQuestions, currentStreak, nextQuestionDifficulty
     } = useContext(GameContext);
     
     // Timer local para evitar problemas de sincronización
@@ -29,7 +29,7 @@ export const GameScreen = () => {
         }
         
         // Actualizar puntaje usando ML
-        await updateScoreWithML(isCorrect);
+        await updateDifficultyWithML(isCorrect);
         
         if (isCorrect) {
             setGameState("correct");
@@ -54,7 +54,7 @@ export const GameScreen = () => {
                 }, 2000);
             }
         }
-    }, [updateScoreWithML, currentQuestion, lives, setGameState, setCurrentQuestion, setLives, selectedQuestions]);
+    }, [updateDifficultyWithML, currentQuestion, lives, setGameState, setCurrentQuestion, setLives, selectedQuestions, startResponseTimer]);
 
     // Update the ref whenever processAnswer changes
     useEffect(() => {
@@ -71,8 +71,7 @@ export const GameScreen = () => {
         if (gameState === "playing") {
             // Reset timer to full time
             setTimeLeft(timePerQuestion);
-            startResponseTimer(); // Iniciar cronómetro para ML
-
+            
             console.log(`⏱️ Iniciando timer para pregunta ${currentQuestion + 1} con ${timePerQuestion} segundos`);
 
             timerRef.current = setInterval(() => {
@@ -103,8 +102,14 @@ export const GameScreen = () => {
                 timerRef.current = null;
             }
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [gameState, currentQuestion, timePerQuestion, startResponseTimer]);
+    }, [gameState, currentQuestion, timePerQuestion]);
+
+    // Iniciar el timer del ML cuando empieza una nueva pregunta
+    useEffect(() => {
+        if (gameState === "playing") {
+            startResponseTimer();
+        }
+    }, [gameState, currentQuestion, startResponseTimer]);
 
     // Solo logging para debug - TTS se maneja automáticamente
     useEffect(() => {
