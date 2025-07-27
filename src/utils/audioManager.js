@@ -33,28 +33,25 @@ class AudioManager {
      */
     initializeAudio() {
         try {
-            // MÚSICA DE FONDO - Coloca tu archivo de música aquí
-            // Ruta: src/assets/audio/background-music.wav
+            // MÚSICA DE FONDO
             this.backgroundMusic = new Audio('/src/assets/audio/background-music.wav');
             this.backgroundMusic.loop = true;
             this.backgroundMusic.preload = 'auto';
             
-            // EFECTO SONIDO CORRECTO - Coloca tu archivo de sonido aquí
-            // Ruta: src/assets/audio/correct-answer.wav
+            // EFECTO SONIDO CORRECTO
             this.correctSound = new Audio('/src/assets/audio/correct-answer.wav');
             this.correctSound.preload = 'auto';
-            
-            // EFECTO SONIDO INCORRECTO - Coloca tu archivo de sonido aquí
-            // Ruta: src/assets/audio/incorrect-answer.wav
+
+            // EFECTO SONIDO INCORRECTO
             this.incorrectSound = new Audio('/src/assets/audio/incorrect-answer.wav');
             this.incorrectSound.preload = 'auto';
             
             this.updateVolumes();
             
-            console.log('🎵 Audio Manager inicializado correctamente');
+            console.log('Audio Manager inicializado correctamente');
         } catch (error) {
-            console.warn('⚠️ Algunos archivos de audio no están disponibles. Coloca los archivos de audio en src/assets/audio/');
-            console.error('❌ Error inicializando Audio Manager:', error);
+            console.warn('Algunos archivos de audio no están disponibles.');
+            console.error('Error inicializando Audio Manager:', error);
         }
     }
 
@@ -84,11 +81,11 @@ class AudioManager {
             this.backgroundMusic.play()
                 .then(() => {
                     this.isMusicPlaying = true;
-                    console.log('🎵 Música de fondo iniciada');
+                    console.log('Música de fondo iniciada');
                 })
                 .catch(error => {
-                    console.warn('⚠️ No se pudo reproducir la música de fondo. Asegúrate de tener el archivo background-music.wav en src/assets/audio/');
-                    console.error('❌ Error reproduciendo música de fondo:', error);
+                    console.warn('No se pudo reproducir la música de fondo.');
+                    console.error('Error reproduciendo música de fondo:', error);
                 });
         }
     }
@@ -100,7 +97,7 @@ class AudioManager {
         if (this.backgroundMusic && this.isMusicPlaying) {
             this.backgroundMusic.pause();
             this.isMusicPlaying = false;
-            console.log('⏸️ Música de fondo pausada');
+            console.log('Música de fondo pausada');
         }
     }
 
@@ -112,7 +109,7 @@ class AudioManager {
             this.backgroundMusic.pause();
             this.backgroundMusic.currentTime = 0;
             this.isMusicPlaying = false;
-            console.log('⏹️ Música de fondo detenida');
+            console.log('Música de fondo detenida');
         }
     }
 
@@ -124,11 +121,11 @@ class AudioManager {
             this.correctSound.currentTime = 0; // Reinicia el sonido
             this.correctSound.play()
                 .then(() => {
-                    console.log('✅ Sonido de respuesta correcta reproducido');
+                    console.log('Sonido de respuesta correcta reproducido');
                 })
                 .catch(error => {
-                    console.warn('⚠️ No se pudo reproducir el sonido de respuesta correcta. Asegúrate de tener el archivo correct-answer.wav en src/assets/audio/');
-                    console.error('❌ Error reproduciendo sonido correcto:', error);
+                    console.warn('No se pudo reproducir el sonido de respuesta correcta.');
+                    console.error('Error reproduciendo sonido correcto:', error);
                 });
         }
     }
@@ -141,11 +138,11 @@ class AudioManager {
             this.incorrectSound.currentTime = 0; // Reinicia el sonido
             this.incorrectSound.play()
                 .then(() => {
-                    console.log('❌ Sonido de respuesta incorrecta reproducido');
+                    console.log('Sonido de respuesta incorrecta reproducido');
                 })
                 .catch(error => {
-                    console.warn('⚠️ No se pudo reproducir el sonido de respuesta incorrecta. Asegúrate de tener el archivo incorrect-answer.wav en src/assets/audio/');
-                    console.error('❌ Error reproduciendo sonido incorrecto:', error);
+                    console.warn('No se pudo reproducir el sonido de respuesta incorrecta.');
+                    console.error('Error reproduciendo sonido incorrecto:', error);
                 });
         }
     }
@@ -205,7 +202,7 @@ class AudioManager {
      */
     cleanup() {
         this.stopBackgroundMusic();
-        console.log('🧹 Audio Manager limpiado');
+        console.log('Audio Manager limpiado');
     }
 }
 
