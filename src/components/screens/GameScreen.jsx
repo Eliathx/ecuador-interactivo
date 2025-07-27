@@ -11,7 +11,8 @@ export const GameScreen = () => {
         playerName, gameState, setGameState, lives, setLives, 
         currentQuestion, timePerQuestion, score, setCurrentQuestion,
         startResponseTimer, updateDifficultyWithML, processAnswerRef,
-        selectedQuestions, currentStreak, nextQuestionDifficulty
+        selectedQuestions, currentStreak, nextQuestionDifficulty,
+        audioManager
     } = useContext(GameContext);
     
     // Timer local para evitar problemas de sincronización
@@ -26,6 +27,13 @@ export const GameScreen = () => {
         if (timerRef.current) {
             clearInterval(timerRef.current);
             timerRef.current = null;
+        }
+        
+        // Reproducir efecto de sonido según la respuesta
+        if (isCorrect) {
+            audioManager.playCorrectSound();
+        } else {
+            audioManager.playIncorrectSound();
         }
         
         // Actualizar puntaje usando ML
@@ -54,7 +62,7 @@ export const GameScreen = () => {
                 }, 2000);
             }
         }
-    }, [updateDifficultyWithML, currentQuestion, lives, setGameState, setCurrentQuestion, setLives, selectedQuestions, startResponseTimer]);
+    }, [updateDifficultyWithML, currentQuestion, lives, setGameState, setCurrentQuestion, setLives, selectedQuestions, startResponseTimer, audioManager]);
 
     // Update the ref whenever processAnswer changes
     useEffect(() => {

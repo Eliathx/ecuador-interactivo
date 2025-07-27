@@ -15,10 +15,11 @@
  * - Soporte para Text-to-Speech (TTS)
  */
 
-import { createContext, useState, useRef, useCallback } from "react";
+import { createContext, useState, useRef, useCallback, useEffect } from "react";
 import { apiService } from "../services/api";
 import { questions } from "../data/questions";
 import { selectRandomQuestions } from "../data/provinceMapping";
+import { audioManager } from "../utils/audioManager";
 
 /**
  * Contexto principal del juego
@@ -240,6 +241,26 @@ export const GameProvider = ({ children, timePerQuestion }) => {
         }
     }, [currentQuestion, selectedQuestions]);
 
+    // ===== GESTIÓN DE AUDIO =====
+    /**
+     * Efecto para manejar la música de fondo según el estado del juego
+     * - Reproduce música en el menú principal (start, player-info, leaderboard)
+     * - Pausa música durante el juego (playing, correct, incorrect, waiting)
+     * - Reanuda música al terminar o volver al menú
+     */
+    useEffect(() => {
+        const musicStates = ['start', 'player-info', 'leaderboard', 'finished'];
+        const gameplayStates = ['playing', 'correct', 'incorrect', 'waiting'];
+        
+        if (musicStates.includes(gameState)) {
+            // Estados donde debe sonar música de fondo
+            audioManager.playBackgroundMusic();
+        } else if (gameplayStates.includes(gameState)) {
+            // Estados de juego donde se pausa la música
+            audioManager.pauseBackgroundMusic();
+        }
+    }, [gameState]);
+
     // ===== PROVEEDOR DEL CONTEXTO =====
 
     /**
@@ -289,6 +310,9 @@ export const GameProvider = ({ children, timePerQuestion }) => {
                 // ===== ARDUINO Y HARDWARE =====
                 handleAnswerBasedOnButton,   // Función para manejar respuestas del Arduino
                 processAnswerRef,            // Referencia para procesamiento de respuestas
+                
+                // ===== SISTEMA DE AUDIO =====
+                audioManager,                // Gestor de audio global
             }}
         >
             {children}

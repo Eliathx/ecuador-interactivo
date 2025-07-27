@@ -10,6 +10,7 @@ import { FinishedScreen } from "./components/screens/FinishedScreen";
 import { GameContext } from "./context/gameContext";
 import { useContext } from "react";
 import { Leaderboard } from "./components/Leaderboard";
+import VolumeControl from "./components/VolumeControl";
 
 function App() {
 
@@ -39,6 +40,9 @@ function App() {
 
   return (
     <>
+      {/* Control de volumen global */}
+      <VolumeControl />
+      
       {gameState === "start" && <StartScreen />}
       {gameState === "player-info" && <PlayerInfoScreen />}
       {gameState === "leaderboard" && <Leaderboard />}
