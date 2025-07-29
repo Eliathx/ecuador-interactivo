@@ -8,7 +8,7 @@
  */
 
 import React, { forwardRef } from 'react';
-import { TTSButton as NewTTSButton, getElevenLabsConfigFromEnv } from './TTSButton';
+import { TTSButton as NewTTSButton, getElevenLabsConfigFromEnv } from './TTSButton/index';
 
 export const TTSButton = forwardRef(({ 
     text, 
