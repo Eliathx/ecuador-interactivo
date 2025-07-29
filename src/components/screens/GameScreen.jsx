@@ -1,14 +1,22 @@
 import LinearProgress from '@mui/material/LinearProgress';
 import Box from '@mui/material/Box';
 import { MapPin, Trophy, Heart } from "lucide-react";
-import { useContext, useEffect, useRef, useCallback } from "react";
+import { useContext, useEffect, useRef, useCallback, useState } from "react";
 import { GameContext } from "../../context/gameContext";
 import { questions } from "../../data/questions";
 import { TTSButton } from "../TTSButton";
 
 export const GameScreen = () => {
 
-    const { gameState, setGameState, lives, setTimeLeft, setScore, setLives, currentQuestion, timePerQuestion, timeLeft, score, setCurrentQuestion } = useContext(GameContext);
+    const { 
+        playerName, gameState, setGameState, lives, setLives, 
+        currentQuestion, timePerQuestion, score, setCurrentQuestion,
+        startResponseTimer, updateDifficultyWithML, processAnswerRef,
+        selectedQuestions, /* currentStreak, nextQuestionDifficulty */
+    } = useContext(GameContext);
+    
+    // Timer local para evitar problemas de sincronización
+    const [timeLeft, setTimeLeft] = useState(timePerQuestion);
     
     const previousQuestionRef = useRef(-1); // Initialize with -1 to ensure first question plays
 
@@ -49,7 +57,12 @@ export const GameScreen = () => {
                 }, 2000);
             }
         }
-    }, [currentQuestion, lives, setScore, setGameState, setCurrentQuestion, setLives]);
+    }, [updateDifficultyWithML, currentQuestion, lives, setGameState, setCurrentQuestion, setLives, selectedQuestions]);
+
+    // Update the ref whenever processAnswer changes
+    useEffect(() => {
+        processAnswerRef.current = processAnswer;
+    }, [processAnswer, processAnswerRef]);
 
     useEffect(() => {
         if (gameState === "playing") {
