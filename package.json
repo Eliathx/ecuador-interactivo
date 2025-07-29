@@ -9,7 +9,11 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "server": "node sever.js",
-    "dev:full": "concurrently \"npm run dev\" \"npm run server\""
+    "dev:full": "concurrently \"npm run dev\" \"npm run server\"",
+    "backend": "node src/server.js",
+    "arduino": "node sever.js",
+    "start:full": "concurrently \"npm run backend\" \"npm run arduino\" \"npm run dev\"",
+    "close-serial": "node close-serial.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -17,8 +21,10 @@
     "@mui/material": "^7.1.2",
     "@serialport/parser-readline": "^13.0.0",
     "cors": "^2.8.5",
+    "dotenv": "^17.0.0",
     "express": "^5.1.0",
     "lucide-react": "^0.515.0",
+    "pg": "^8.16.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "serialport": "^13.0.0",

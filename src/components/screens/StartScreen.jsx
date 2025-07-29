@@ -1,7 +1,7 @@
 import { GameContext } from "../../context/gameContext";
 import { useContext } from "react";
 
-import { Play } from "lucide-react";
+import { Play, Trophy } from "lucide-react";
 
 export const StartScreen = () => {
 
@@ -9,6 +9,10 @@ export const StartScreen = () => {
 
     const goToPlayerInfo = () => {
         setGameState("player-info");
+    };
+
+    const goToLeaderboard = () => {
+        setGameState("leaderboard");
     };
 
     return (
@@ -38,7 +42,11 @@ export const StartScreen = () => {
                     </div>
                     <button onClick={goToPlayerInfo} className="btn btn-primary">
                         <Play className="icon" />
-                        JUGAR
+                        Jugar
+                    </button>
+                    <button onClick={goToLeaderboard} className="btn btn-primary" style={{ marginTop: "16px" }}>
+                        <Trophy className="icon" />
+                        Ver Puntaciones
                     </button>
                 </div>
 

@@ -9,6 +9,8 @@ import { FinishedScreen } from "./components/screens/FinishedScreen";
 
 import { GameContext } from "./context/gameContext";
 import { useContext } from "react";
+import { Leaderboard } from "./components/Leaderboard";
+import VolumeControl from "./components/VolumeControl";
 
 function App() {
 
@@ -32,24 +34,31 @@ function App() {
   useEffect(() => {
     socketRef.current = io("http://localhost:3001");
 
-    socketRef.current.on("arduino-input", ({ button }) => {
+    const handleArduinoInput = ({ button }) => {
       console.log("Botón Arduino recibido:", button);
       handleAnswerBasedOnButton(button);
-    });
+    };
+
+    socketRef.current.on("arduino-input", handleArduinoInput);
 
     socketRef.current.on("connect_error", (err) => {
       console.error("Error de conexión Socket:", err);
     });
 
     return () => {
+      socketRef.current.off("arduino-input", handleArduinoInput);
       socketRef.current.disconnect();
     };
   }, [handleAnswerBasedOnButton]);
 
   return (
     <>
+      {/* Control de volumen global */}
+      <VolumeControl />
+      
       {gameState === "start" && <StartScreen />}
       {gameState === "player-info" && <PlayerInfoScreen />}
+      {gameState === "leaderboard" && <Leaderboard />}
       {gameState === "playing" && <GameScreen />}
       {gameState === "correct" && <FeedbackScreen isCorrect={true} />}
       {gameState === "incorrect" && <FeedbackScreen isCorrect={false} />}
