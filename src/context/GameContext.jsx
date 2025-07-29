@@ -244,20 +244,16 @@ export const GameProvider = ({ children, timePerQuestion }) => {
     // ===== GESTIÓN DE AUDIO =====
     /**
      * Efecto para manejar la música de fondo según el estado del juego
-     * - Reproduce música en el menú principal (start, player-info, leaderboard)
-     * - Pausa música durante el juego (playing, correct, incorrect, waiting)
-     * - Reanuda música al terminar o volver al menú
+     * - Reproduce música durante todo el juego
+     * - El TTS se encarga de reducir el volumen cuando sea necesario
      */
     useEffect(() => {
-        const musicStates = ['start', 'player-info', 'leaderboard', 'finished'];
-        const gameplayStates = ['playing', 'correct', 'incorrect', 'waiting'];
+        const musicStates = ['start', 'player-info', 'leaderboard', 'finished', 'playing', 'correct', 'incorrect', 'waiting'];
         
         if (musicStates.includes(gameState)) {
-            // Estados donde debe sonar música de fondo
+            // La música sigue sonando durante todo el juego
+            // El TTS se encargará de reducir el volumen cuando sea necesario
             audioManager.playBackgroundMusic();
-        } else if (gameplayStates.includes(gameState)) {
-            // Estados de juego donde se pausa la música
-            audioManager.pauseBackgroundMusic();
         }
     }, [gameState]);
 

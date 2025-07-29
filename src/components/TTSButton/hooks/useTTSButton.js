@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { audioManager } from '../../../utils/audioManager';
 
 /**
  * Custom hook for TTS (Text-to-Speech) functionality
  * Supports both ElevenLabs API and browser's built-in speech synthesis as fallback
+ * Integrates with audioManager to manage background music volume during TTS playback
  */
 export const useTTSButton = ({ 
   text, 
@@ -41,6 +43,9 @@ export const useTTSButton = ({
     currentAudioUrl: null,
     isPlaying: false,
     stopAllAudio: () => {
+      // Restaurar el volumen de la música de fondo al detener todo el audio
+      audioManager.restoreBackgroundMusic();
+      
       if (globalAudioManagerRef.current.currentAudio) {
         if (typeof globalAudioManagerRef.current.currentAudio.stopManually === 'function') {
           globalAudioManagerRef.current.currentAudio.stopManually();
@@ -85,6 +90,9 @@ export const useTTSButton = ({
 
   // Clean up audio resources
   const cleanupAudio = useCallback((audio, audioUrl) => {
+    // Restaurar el volumen de la música de fondo al limpiar el audio
+    audioManager.restoreBackgroundMusic();
+    
     if (audio) {
       if (typeof audio.stopManually === 'function') {
         audio.stopManually();
@@ -112,6 +120,9 @@ export const useTTSButton = ({
     if (isManualStop) {
       isManuallyStoppedRef.current = true;
     }
+    
+    // Restaurar el volumen de la música de fondo al detener el TTS
+    audioManager.restoreBackgroundMusic();
     
     // Stop current audio
     cleanupAudio(currentAudioRef.current, currentAudioUrlRef.current);
@@ -160,17 +171,23 @@ export const useTTSButton = ({
       utterance.volume = 1.0;
 
       utterance.onstart = () => {
+        // Reducir el volumen de la música de fondo cuando inicia el TTS
+        audioManager.duckBackgroundMusic();
         setIsPlaying(true);
         onPlayStart?.(textToSpeak);
       };
 
       utterance.onend = () => {
+        // Restaurar el volumen de la música de fondo cuando termina el TTS
+        audioManager.restoreBackgroundMusic();
         setIsPlaying(false);
         setShowStopButton(false);
         onPlayEnd?.();
       };
 
       utterance.onerror = (event) => {
+        // Restaurar el volumen de la música de fondo en caso de error
+        audioManager.restoreBackgroundMusic();
         setIsPlaying(false);
         setIsLoading(false);
         setShowStopButton(false);
@@ -261,6 +278,8 @@ export const useTTSButton = ({
     // Set up event handlers
     audio.onended = () => {
       audioPlayedSuccessfully = true;
+      // Restaurar el volumen de la música de fondo cuando termina el TTS
+      audioManager.restoreBackgroundMusic();
       setIsPlaying(false);
       setShowStopButton(false);
       currentAudioRef.current = null;
@@ -276,6 +295,8 @@ export const useTTSButton = ({
       if (isManuallyStoppedRef.current) return;
       
       if (!audioPlayedSuccessfully && !manuallyStopped) {
+        // Restaurar el volumen de la música de fondo en caso de error
+        audioManager.restoreBackgroundMusic();
         setIsPlaying(false);
         setShowStopButton(false);
         currentAudioRef.current = null;
@@ -291,6 +312,9 @@ export const useTTSButton = ({
 
     setIsLoading(false);
     setIsPlaying(true);
+    
+    // Reducir el volumen de la música de fondo antes de reproducir el TTS
+    audioManager.duckBackgroundMusic();
     
     await audio.play();
   }, [defaultElevenLabsConfig, globalAudioManager, fallbackToBrowserTTS, onPlayEnd]);
@@ -405,6 +429,18 @@ export const useTTSButton = ({
     setIsLoading(false);
     setShowStopButton(false);
   }, [globalAudioManager, stopCurrentAudio]);
+
+  // Cleanup effect - restaurar música al desmontar componente
+  useEffect(() => {
+    return () => {
+      // Asegurar que la música se restaure cuando el componente se desmonte
+      audioManager.restoreBackgroundMusic();
+      globalAudioManager.stopAllAudio();
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [globalAudioManager]);
 
   return {
     isPlaying,

@@ -102,6 +102,28 @@ class AudioManager {
     }
 
     /**
+     * Reduce el volumen de la música de fondo (para TTS)
+     */
+    duckBackgroundMusic() {
+        if (this.backgroundMusic && this.isMusicPlaying) {
+            const duckedVolume = this.isMuted ? 0 : this.masterVolume * this.musicVolume * 0.2; // 20% del volumen original
+            this.backgroundMusic.volume = duckedVolume;
+            console.log('🎵 Música de fondo reducida para TTS');
+        }
+    }
+
+    /**
+     * Restaura el volumen normal de la música de fondo (después del TTS)
+     */
+    restoreBackgroundMusic() {
+        if (this.backgroundMusic && this.isMusicPlaying) {
+            const normalVolume = this.isMuted ? 0 : this.masterVolume * this.musicVolume;
+            this.backgroundMusic.volume = normalVolume;
+            console.log('🎵 Música de fondo restaurada después de TTS');
+        }
+    }
+
+    /**
      * Detiene completamente la música de fondo
      */
     stopBackgroundMusic() {
