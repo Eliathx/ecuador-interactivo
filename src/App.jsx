@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { io } from "socket.io-client";
 
 import { StartScreen } from "./components/screens/StartScreen";
@@ -12,9 +12,22 @@ import { useContext } from "react";
 
 function App() {
 
-  const { gameState, lives, currentQuestion } = useContext(GameContext);
+  const { gameState, currentQuestion, processAnswerRef } = useContext(GameContext);
 
   const socketRef = useRef(null);
+
+  // Handle Arduino button input
+  const handleAnswerBasedOnButton = useCallback((button) => {
+    if (gameState !== "playing" || !processAnswerRef?.current) return;
+
+    const correctProvinceIndex = currentQuestion + 1;
+
+    if (parseInt(button, 10) === correctProvinceIndex) {
+      processAnswerRef.current(true);
+    } else {
+      processAnswerRef.current(false);
+    }
+  }, [gameState, currentQuestion, processAnswerRef]);
 
   useEffect(() => {
     socketRef.current = io("http://localhost:3001");
@@ -31,7 +44,7 @@ function App() {
     return () => {
       socketRef.current.disconnect();
     };
-  }, [gameState, currentQuestion, lives]);
+  }, [handleAnswerBasedOnButton]);
 
   return (
     <>

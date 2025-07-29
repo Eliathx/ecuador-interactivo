@@ -13,6 +13,21 @@ export const GameProvider = ({ children, timePerQuestion }) => {
     const [playerName, setPlayerName] = useState("");
     const [playerAge, setPlayerAge] = useState("");
 
+    // Add missing refs and functions
+    const processAnswerRef = useRef(null);
+    const [selectedQuestions, setSelectedQuestions] = useState([]);
+
+    // Placeholder functions - these should be implemented based on your app's needs
+    const startResponseTimer = () => {
+        // Implementation needed
+        console.log("startResponseTimer called");
+    };
+
+    const updateDifficultyWithML = () => {
+        // Implementation needed
+        console.log("updateDifficultyWithML called");
+    };
+
     return (
         <GameContext.Provider
             value={{
@@ -32,6 +47,11 @@ export const GameProvider = ({ children, timePerQuestion }) => {
                 setPlayerName,
                 playerAge,
                 setPlayerAge,
+                processAnswerRef,
+                selectedQuestions,
+                setSelectedQuestions,
+                startResponseTimer,
+                updateDifficultyWithML,
             }}
         >
             {children}

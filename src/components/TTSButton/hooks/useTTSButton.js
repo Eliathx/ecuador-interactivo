@@ -36,37 +36,39 @@ export const useTTSButton = ({
   }, [isLoading]);
 
   // Global audio manager singleton to prevent audio overlap
-  const globalAudioManager = useRef({
+  const globalAudioManagerRef = useRef({
     currentAudio: null,
     currentAudioUrl: null,
     isPlaying: false,
     stopAllAudio: () => {
-      if (globalAudioManager.current.currentAudio) {
-        if (typeof globalAudioManager.current.currentAudio.stopManually === 'function') {
-          globalAudioManager.current.currentAudio.stopManually();
+      if (globalAudioManagerRef.current.currentAudio) {
+        if (typeof globalAudioManagerRef.current.currentAudio.stopManually === 'function') {
+          globalAudioManagerRef.current.currentAudio.stopManually();
         } else {
-          globalAudioManager.current.currentAudio.pause();
-          globalAudioManager.current.currentAudio.currentTime = 0;
+          globalAudioManagerRef.current.currentAudio.pause();
+          globalAudioManagerRef.current.currentAudio.currentTime = 0;
         }
-        globalAudioManager.current.currentAudio = null;
+        globalAudioManagerRef.current.currentAudio = null;
       }
       
-      if (globalAudioManager.current.currentAudioUrl) {
+      if (globalAudioManagerRef.current.currentAudioUrl) {
         try {
-          URL.revokeObjectURL(globalAudioManager.current.currentAudioUrl);
+          URL.revokeObjectURL(globalAudioManagerRef.current.currentAudioUrl);
         } catch {
           // Silently ignore errors
         }
-        globalAudioManager.current.currentAudioUrl = null;
+        globalAudioManagerRef.current.currentAudioUrl = null;
       }
       
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
       
-      globalAudioManager.current.isPlaying = false;
+      globalAudioManagerRef.current.isPlaying = false;
     }
-  }).current;
+  });
+  
+  const globalAudioManager = globalAudioManagerRef.current;
 
   // Memoized ElevenLabs configuration
   const defaultElevenLabsConfig = useMemo(() => ({
