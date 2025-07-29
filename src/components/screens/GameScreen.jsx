@@ -62,7 +62,7 @@ export const GameScreen = () => {
                 }, 2000);
             }
         }
-    }, [updateDifficultyWithML, currentQuestion, lives, setGameState, setCurrentQuestion, setLives, selectedQuestions, startResponseTimer, audioManager]);
+    }, [updateDifficultyWithML, currentQuestion, lives, setGameState, setCurrentQuestion, setLives, selectedQuestions, audioManager]);
 
     // Update the ref whenever processAnswer changes
     useEffect(() => {

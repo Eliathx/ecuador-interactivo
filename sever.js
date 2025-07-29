@@ -5,7 +5,11 @@ import { Server } from 'socket.io';
 import { SerialPort } from 'serialport';
 import { ReadlineParser } from '@serialport/parser-readline';
 import cors from 'cors';
+import dotenv from 'dotenv';
 import process from 'process';
+
+// Cargar variables de entorno
+dotenv.config();
 
 const app = express();
 app.use(cors()); 
@@ -20,9 +24,19 @@ const io = new Server(server, {
 
 const PORT = 3001;
 
+// Configuración del puerto serial desde variables de entorno
+const SERIAL_PORT = process.env.SERIAL_PORT || 'COM3'; // Puerto por defecto COM3
+const BAUD_RATE = parseInt(process.env.BAUD_RATE) || 9600; // Baud rate por defecto 9600
+const RECONNECT_INTERVAL = parseInt(process.env.RECONNECT_INTERVAL) || 5000; // Intervalo de reconexión en ms
+
+console.log(`🔌 Configuración Arduino:`);
+console.log(`   Puerto: ${SERIAL_PORT}`);
+console.log(`   Baud Rate: ${BAUD_RATE}`);
+console.log(`   Reconexión cada: ${RECONNECT_INTERVAL/1000} segundos`);
+
 const arduinoPort = new SerialPort({
-  path: 'COM5',
-  baudRate: 9600,
+  path: SERIAL_PORT,
+  baudRate: BAUD_RATE,
   autoOpen: false, 
 });
 
@@ -32,12 +46,16 @@ const parser = arduinoPort.pipe(new ReadlineParser({ delimiter: '\r\n' }));
 function openSerialPort() {
   arduinoPort.open((err) => {
     if (err) {
-      console.error('Error abriendo el puerto serial:', err.message);
-      console.log('Reintentando en 5 segundos...');
-      setTimeout(openSerialPort, 5000);
+      console.error(`❌ Error abriendo el puerto serial ${SERIAL_PORT}:`, err.message);
+      console.log('💡 Verifica que:');
+      console.log('   - El Arduino esté conectado');
+      console.log(`   - El puerto ${SERIAL_PORT} sea correcto`);
+      console.log('   - No esté siendo usado por otra aplicación');
+      console.log(`🔄 Reintentando en ${RECONNECT_INTERVAL/1000} segundos...`);
+      setTimeout(openSerialPort, RECONNECT_INTERVAL);
       return;
     }
-    console.log('Puerto serial abierto correctamente');
+    console.log(`✅ Puerto serial ${SERIAL_PORT} abierto correctamente`);
   });
 }
 
@@ -54,7 +72,7 @@ io.on('connection', (socket) => {
 
 parser.on('data', (data) => {
   const trimmedData = data.trim();
-  console.log(`Datos recibidos del Arduino: "${trimmedData}"`);
+  console.log(`📨 Datos recibidos del Arduino: "${trimmedData}"`);
   
   // Buscar el patrón "Botón X presionado" donde X es el número
   const buttonMatch = trimmedData.match(/Botón\s+(\d+)\s+presionado/i);
@@ -64,8 +82,13 @@ parser.on('data', (data) => {
     
     // Validar que sea un número válido entre 0 y 23
     if (!isNaN(buttonNumber) && buttonNumber >= 0 && buttonNumber <= 23) {
+      console.log(`🎮 Botón ${buttonNumber} procesado correctamente`);
       io.emit('arduino-input', { button: buttonNumber });
-    } 
+    } else {
+      console.warn(`⚠️ Número de botón inválido: ${buttonNumber}`);
+    }
+  } else {
+    console.log(`🔍 Formato de datos no reconocido: "${trimmedData}"`);
   }
 });
 
@@ -101,4 +124,5 @@ process.on('SIGTERM', () => {
 
 server.listen(PORT, () => {
   console.log(`🚀 Servidor escuchando en http://localhost:${PORT}`);
+  console.log(`🔌 Esperando conexión Arduino en puerto: ${SERIAL_PORT}`);
 });

@@ -1,0 +1,250 @@
+/* TTSButton Component Styles */
+
+/* Keyframes para animaciones */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3), 0 0 0 0 rgba(102, 126, 234, 0.7);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4), 0 0 0 6px rgba(102, 126, 234, 0.1);
+  }
+}
+
+/* Estilos base del botón TTS */
+.tts-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 12px 20px !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 12px !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
+  /* margin: 17px auto 15px !important;  */
+  /* Margen superior aumentado para compensar movimiento */
+  min-width: 140px !important;
+  height: 48px !important; /* Altura fija para mantener consistencia */
+  position: relative !important;
+  overflow: hidden !important;
+  opacity: 1 !important;
+  transform: none !important;
+  text-decoration: none !important;
+}
+
+/* Efecto hover del botón */
+.tts-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7c8df0 0%, #8a5ab8 100%) !important;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+  transform: translateY(-2px) !important; /* Restaurado: efecto de elevación en hover */
+}
+
+/* Estado activo */
+.tts-button:active:not(:disabled) {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6e3d8a 100%) !important;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.5) !important;
+  transform: translateY(1px) !important; /* Efecto de presión hacia abajo */
+  transition: all 0.1s !important;
+}
+
+/* Estado deshabilitado */
+.tts-button:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2) !important;
+}
+
+/* Estado playing (reproduciendo) */
+.tts-button.playing {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%) !important;
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3) !important;
+  animation: pulse 2s infinite;
+}
+
+.tts-button.playing:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ff7979 0%, #f56565 100%) !important;
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4) !important;
+  transform: translateY(-2px) !important; /* Efecto de elevación en hover */
+}
+
+/* Estado loading (cargando) */
+.tts-button.loading {
+  background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%) !important;
+  box-shadow: 0 4px 12px rgba(254, 202, 87, 0.3) !important;
+  cursor: wait !important;
+}
+
+.tts-button.loading:hover {
+  background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%) !important;
+  transform: none !important; /* Loading no debe tener efectos hover */
+}
+
+/* Estados específicos para diferentes tipos de botón en active */
+.tts-button.playing:active:not(:disabled) {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.5) !important;
+  transform: translateY(1px) !important; /* Efecto de presión hacia abajo */
+}
+
+.tts-button.loading:active {
+  /* Loading state no debe tener active ya que está deshabilitado */
+  background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%) !important;
+  transform: none !important;
+}
+
+/* Estilos para el texto */
+.tts-text {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  white-space: nowrap !important;
+  line-height: 16px !important; /* Altura de línea fija */
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Animación del ícono de carga */
+.tts-loading-icon {
+  animation: spin 1s linear infinite;
+}
+
+/* Efecto shimmer para el botón */
+.tts-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.tts-button:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .tts-button {
+    padding: 10px 16px !important;
+    font-size: 13px !important;
+    min-width: 120px !important;
+    gap: 6px !important;
+    height: 44px !important; /* Altura fija más pequeña para tablets */
+  }
+  
+  .tts-text {
+    font-size: 12px !important;
+    line-height: 14px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .tts-button {
+    padding: 8px 12px !important;
+    min-width: 100px !important;
+    height: 40px !important; /* Altura fija más pequeña para móviles */
+  }
+  
+  .tts-text {
+    display: none;
+  }
+}
+
+/* Estados específicos para accesibilidad */
+.tts-button:focus {
+  outline: 2px solid #667eea !important;
+  outline-offset: 2px !important;
+}
+
+.tts-button:focus:not(:focus-visible) {
+  outline: none !important;
+}
+
+/* Mejoras para modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .tts-button {
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4) !important;
+  }
+  
+  .tts-button.playing {
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4) !important;
+  }
+  
+  .tts-button.loading {
+    box-shadow: 0 4px 12px rgba(254, 202, 87, 0.4) !important;
+  }
+}
+
+/* Estilos específicos por contexto */
+.question-tts-button {
+  margin: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.hint-tts-button {
+  margin: 10px auto 5px;
+  display: flex;
+  justify-content: center;
+  min-width: 120px !important;
+  height: 40px !important;
+  font-size: 12px !important;
+  padding: 8px 16px !important;
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
+  box-shadow: 0 3px 8px rgba(23, 162, 184, 0.3) !important;
+}
+
+.hint-tts-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1fb5d3 0%, #17a2b8 100%) !important;
+  box-shadow: 0 5px 15px rgba(23, 162, 184, 0.4) !important;
+}
+
+.hint-tts-button:active:not(:disabled) {
+  background: linear-gradient(135deg, #138496 0%, #117a8b 100%) !important;
+  box-shadow: 0 2px 6px rgba(23, 162, 184, 0.5) !important;
+}
+
+.hint-tts-button.playing {
+  background: linear-gradient(135deg, #fd7e14 0%, #e55100 100%) !important;
+  box-shadow: 0 3px 8px rgba(253, 126, 20, 0.3) !important;
+}
+
+.hint-tts-button.playing:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ff851b 0%, #fd7e14 100%) !important;
+  box-shadow: 0 5px 15px rgba(253, 126, 20, 0.4) !important;
+}
+
+.hint-tts-button.playing:active:not(:disabled) {
+  background: linear-gradient(135deg, #e55100 0%, #d84315 100%) !important;
+  box-shadow: 0 2px 6px rgba(253, 126, 20, 0.5) !important;
+}
+
+.hint-tts-button.loading {
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
+  box-shadow: 0 3px 8px rgba(108, 117, 125, 0.3) !important;
+}
+
+.hint-tts-button .tts-text {
+  font-size: 11px !important;
+  line-height: 14px !important;
+}
