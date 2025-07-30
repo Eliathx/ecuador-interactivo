@@ -11,7 +11,7 @@ export const GameScreen = () => {
         playerName, gameState, setGameState, lives, setLives, 
         currentQuestion, timePerQuestion, score, setCurrentQuestion,
         startResponseTimer, updateDifficultyWithML, processAnswerRef,
-        selectedQuestions, currentStreak, nextQuestionDifficulty,
+        selectedQuestions, 
         audioManager
     } = useContext(GameContext);
     
@@ -30,10 +30,11 @@ export const GameScreen = () => {
         }
         
         // Reproducir efecto de sonido según la respuesta
+        // (el audioManager ahora pausa completamente la música de fondo durante los efectos)
         if (isCorrect) {
-            audioManager.playCorrectSound();
+            await audioManager.playCorrectSound();
         } else {
-            audioManager.playIncorrectSound();
+            await audioManager.playIncorrectSound();
         }
         
         // Actualizar puntaje usando ML
@@ -143,11 +144,11 @@ export const GameScreen = () => {
     }, [gameState]);
 
     // Function to handle simulation button clicks
-    const handleAnswerBasedOnButton = useCallback((buttonId) => {
-        const correctAnswer = selectedQuestions[currentQuestion]?.correctAnswer;
-        const isCorrect = buttonId === correctAnswer?.toString();
-        processAnswer(isCorrect);
-    }, [selectedQuestions, currentQuestion, processAnswer]);
+    // const handleAnswerBasedOnButton = useCallback((buttonId) => {
+    //     const correctAnswer = selectedQuestions[currentQuestion]?.correctAnswer;
+    //     const isCorrect = buttonId === correctAnswer?.toString();
+    //     processAnswer(isCorrect);
+    // }, [selectedQuestions, currentQuestion, processAnswer]);
 
     // Protección: si no hay preguntas seleccionadas, mostrar cargando
     if (!selectedQuestions || selectedQuestions.length === 0) {
@@ -260,7 +261,7 @@ export const GameScreen = () => {
                             </div>
 
                             {/* Opcional: botones de simulación para pruebas */}
-                            <div className="simulation-buttons" style={{ marginTop: "20px" }}>
+                            {/* <div className="simulation-buttons" style={{ marginTop: "20px" }}>
                                 <button
                                     onClick={() => {
                                         const correctAnswer = selectedQuestions[currentQuestion]?.correctAnswer;
@@ -281,7 +282,7 @@ export const GameScreen = () => {
                                 >
                                     ✗ Simular Incorrecto
                                 </button>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>
