@@ -224,13 +224,22 @@ export const GameProvider = ({ children, timePerQuestion }) => {
     const handleAnswerBasedOnButton = useCallback((button) => {
         // Obtener datos de la pregunta actual
         const currentQuestionData = selectedQuestions[currentQuestion];
+        
+        if (!currentQuestionData) {
+            console.warn(`⚠️ No hay datos de pregunta para el índice ${currentQuestion}`);
+            return;
+        }
 
         // Comparar respuesta del Arduino con la correcta
         const correctProvinceNumber = currentQuestionData.correctAnswer;
         const buttonNumber = parseInt(button, 10);
+        
+        // Log simplificado
+        const isCorrect = buttonNumber === correctProvinceNumber;
+        console.log(`🎮 Botón ${buttonNumber} → ${currentQuestionData.province} (${isCorrect ? '✅ Correcto' : '❌ Incorrecto'})`);
 
         // Procesar respuesta correcta o incorrecta
-        if (buttonNumber === correctProvinceNumber) {
+        if (isCorrect) {
             if (processAnswerRef.current) {
                 processAnswerRef.current(true);
             }

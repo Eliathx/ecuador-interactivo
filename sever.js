@@ -8,6 +8,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import process from 'process';
 
+// Importar el mapeo de provincias para logging
+import { getProvinceName } from './src/data/provinceMapping.js';
+
 // Cargar variables de entorno
 dotenv.config();
 
@@ -22,7 +25,7 @@ const io = new Server(server, {
   },
 });
 
-const PORT = 3001;
+const PORT = 3000;
 
 // Configuración del puerto serial desde variables de entorno
 const SERIAL_PORT = process.env.SERIAL_PORT || 'COM3'; // Puerto por defecto COM3
@@ -82,7 +85,10 @@ parser.on('data', (data) => {
     
     // Validar que sea un número válido entre 0 y 23
     if (!isNaN(buttonNumber) && buttonNumber >= 0 && buttonNumber <= 23) {
+      const provinceName = getProvinceName(buttonNumber);
       console.log(`🎮 Botón ${buttonNumber} procesado correctamente`);
+      console.log(`🗺️ Provincia seleccionada: ${provinceName || 'DESCONOCIDA'}`);
+      console.log(`📍 Mapeo: Botón ${buttonNumber} → ${provinceName || 'NO ENCONTRADA'}`);
       io.emit('arduino-input', { button: buttonNumber });
     } else {
       console.warn(`⚠️ Número de botón inválido: ${buttonNumber}`);

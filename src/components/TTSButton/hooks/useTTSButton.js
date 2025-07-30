@@ -152,7 +152,6 @@ export const useTTSButton = ({
   // Browser TTS fallback
   const fallbackToBrowserTTS = useCallback((textToSpeak) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      console.error('Speech synthesis not supported');
       setIsPlaying(false);
       setIsLoading(false);
       setShowStopButton(false);
@@ -204,7 +203,8 @@ export const useTTSButton = ({
     }
   }, [onPlayStart, onPlayEnd, onError]);
 
-  // ElevenLabs TTS implementation
+  // ElevenLabs TTS implementation - TEMPORALMENTE DESHABILITADO
+  // eslint-disable-next-line no-unused-vars
   const playWithElevenLabs = useCallback(async (textToSpeak) => {
     const { apiKey, voiceId, modelId, voiceSettings, maxTextLength } = defaultElevenLabsConfig;
     
@@ -212,37 +212,45 @@ export const useTTSButton = ({
       throw new Error('ElevenLabs API key not configured');
     }
 
-    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'audio/mpeg',
-        'Content-Type': 'application/json',
-        'xi-api-key': apiKey
-      },
-      body: JSON.stringify({
-        text: textToSpeak.substring(0, maxTextLength),
-        model_id: modelId,
-        voice_settings: voiceSettings
-      })
-    });
+    // Create AbortController with generous timeout for ElevenLabs processing
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds timeout
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      let errorDetails = errorText;
+    try {
+      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'audio/mpeg',
+          'Content-Type': 'application/json',
+          'xi-api-key': apiKey
+        },
+        body: JSON.stringify({
+          text: textToSpeak.substring(0, maxTextLength),
+          model_id: modelId,
+          voice_settings: voiceSettings
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
       
-      try {
-        const errorJson = JSON.parse(errorText);
-        if (errorJson.detail?.message) {
-          errorDetails = errorJson.detail.message;
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorDetails = errorText;
+        
+        try {
+          const errorJson = JSON.parse(errorText);
+          if (errorJson.detail?.message) {
+            errorDetails = errorJson.detail.message;
+          }
+        } catch {
+          // Keep original error text
         }
-      } catch {
-        // Keep original error text
+        
+        throw new Error(`ElevenLabs API error: ${response.status} - ${errorDetails}`);
       }
-      
-      throw new Error(`ElevenLabs API error: ${response.status} - ${errorDetails}`);
-    }
 
-    const audioBlob = await response.blob();
+      const audioBlob = await response.blob();
     
     // Clean up previous audio URL
     if (currentAudioUrlRef.current) {
@@ -310,6 +318,15 @@ export const useTTSButton = ({
       }
     };
 
+    audio.oncanplaythrough = () => {
+    };
+
+    audio.onloadstart = () => {
+    };
+
+    audio.onloadeddata = () => {
+    };
+
     setIsLoading(false);
     setIsPlaying(true);
     
@@ -317,11 +334,21 @@ export const useTTSButton = ({
     audioManager.duckBackgroundMusic();
     
     await audio.play();
+    
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (controller.signal.aborted) {
+        throw new Error('ElevenLabs request timed out - processing took too long');
+      }
+      throw error;
+    }
   }, [defaultElevenLabsConfig, globalAudioManager, fallbackToBrowserTTS, onPlayEnd]);
 
   // Main play function
   const playTextToSpeech = useCallback(async (textToSpeak) => {
-    if (!textToSpeak?.trim()) return;
+    if (!textToSpeak?.trim()) {
+      return;
+    }
 
     try {
       // Reset manual stop flag
@@ -331,27 +358,32 @@ export const useTTSButton = ({
       globalAudioManager.stopAllAudio();
       stopCurrentAudio(false);
       
-      // Small delay to ensure cleanup
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Increased delay to ensure proper cleanup and give ElevenLabs more processing time
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       setIsLoading(true);
       setShowStopButton(true);
       onPlayStart?.(textToSpeak);
 
+      // TEMPORALMENTE DESHABILITADO: ElevenLabs tiene problemas con la cuenta gratuita
       // Try ElevenLabs first, fallback to browser TTS on failure
-      try {
-        await playWithElevenLabs(textToSpeak);
-      } catch (error) {
-        if (isManuallyStoppedRef.current) return;
-        console.warn('ElevenLabs TTS failed, using browser fallback:', error);
-        fallbackToBrowserTTS(textToSpeak);
-      }
-    } catch (error) {
+      // try {
+      //   console.log('🎤 Intentando ElevenLabs TTS...');
+      //   await playWithElevenLabs(textToSpeak);
+      // } catch (error) {
+      //   if (isManuallyStoppedRef.current) return;
+      //   console.warn('❌ ElevenLabs TTS falló, usando browser fallback:', error.message);
+      //   fallbackToBrowserTTS(textToSpeak);
+      // }
+      
+      // Usar directamente Browser TTS hasta resolver problema con ElevenLabs
+      fallbackToBrowserTTS(textToSpeak);
+      
+    } catch {
       if (isManuallyStoppedRef.current) return;
-      console.error('TTS playback failed:', error);
       fallbackToBrowserTTS(textToSpeak);
     }
-  }, [onPlayStart, stopCurrentAudio, globalAudioManager, playWithElevenLabs, fallbackToBrowserTTS]);
+  }, [onPlayStart, stopCurrentAudio, globalAudioManager, fallbackToBrowserTTS]);
 
   // Auto-play effect when text changes
   useEffect(() => {
@@ -374,11 +406,11 @@ export const useTTSButton = ({
       clearTimeout(autoPlayTimerRef.current);
     }
     
-    // Schedule auto-play
+    // Schedule auto-play with increased delay for better ElevenLabs processing
     autoPlayTimerRef.current = setTimeout(() => {
       lastTextRef.current = textToPlay;
       playTextToSpeech(textToPlay);
-    }, 300);
+    }, 800);
     
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text, autoPlay]);

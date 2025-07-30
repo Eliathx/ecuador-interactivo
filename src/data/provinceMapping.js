@@ -123,6 +123,22 @@ export const selectRandomQuestions = (questions, count = 10) => {
     correctAnswer: getProvinceNumber(question.province) // Respuesta correcta para el Arduino
   }));
 
+  // Logging detallado del mapeo para debugging
+  console.log(`\n🎲 SELECCIÓN DE PREGUNTAS ALEATORIAS:`);
+  console.log(`   Total disponibles: ${questions.length}`);
+  console.log(`   Seleccionadas: ${count}`);
+  console.log(`\n📋 MAPEO COMPLETO DE LA PARTIDA:`);
+  
+  mapped.forEach((q, index) => {
+    console.log(`   ${index + 1}. ${q.province} → Botón ${q.correctAnswer}`);
+    console.log(`      Pregunta: "${q.question.substring(0, 50)}..."`);
+  });
+  
+  console.log(`\n🗺️ VERIFICACIÓN DEL MAPEO DE PROVINCIAS:`);
+  console.log(`   Este mapeo debe coincidir con el hardware Arduino`);
+  console.log(`   Si una respuesta es incorrecta, verifica que el botón físico`);
+  console.log(`   del mapa corresponda con el número mostrado arriba.\n`);
+
   return mapped;
 
   // Ejemplo de retorno:

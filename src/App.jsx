@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 
 import { StartScreen } from "./components/screens/StartScreen";
@@ -11,32 +11,35 @@ import { GameContext } from "./context/gameContext";
 import { useContext } from "react";
 import { Leaderboard } from "./components/Leaderboard";
 import VolumeControl from "./components/VolumeControl";
+import { getProvinceName } from "./data/provinceMapping";
 
 function App() {
 
-  const { gameState, currentQuestion, processAnswerRef } = useContext(GameContext);
+  const { gameState, selectedQuestions, currentQuestion, handleAnswerBasedOnButton } = useContext(GameContext);
 
   const socketRef = useRef(null);
 
-  // Handle Arduino button input
-  const handleAnswerBasedOnButton = useCallback((button) => {
-    if (gameState !== "playing" || !processAnswerRef?.current) return;
-
-    const correctProvinceIndex = currentQuestion + 1;
-
-    if (parseInt(button, 10) === correctProvinceIndex) {
-      processAnswerRef.current(true);
-    } else {
-      processAnswerRef.current(false);
-    }
-  }, [gameState, currentQuestion, processAnswerRef]);
-
   useEffect(() => {
-    socketRef.current = io("http://localhost:3001");
+    socketRef.current = io("http://localhost:3000");
 
     const handleArduinoInput = ({ button }) => {
-      console.log("Botón Arduino recibido:", button);
-      handleAnswerBasedOnButton(button);
+      console.log(`🎮 Botón Arduino recibido: ${button}`);
+      
+      // Obtener el nombre de la provincia para logging
+      const provinceName = getProvinceName(button);
+      console.log(`🗺️ Provincia detectada: ${provinceName || 'DESCONOCIDA'}`);
+      
+      // Mostrar datos de la pregunta actual para verificar el mapeo
+      if (selectedQuestions && selectedQuestions[currentQuestion]) {
+        const currentQuestionData = selectedQuestions[currentQuestion];
+        console.log(`❓ Pregunta actual: ${currentQuestionData.province} (Respuesta correcta: ${currentQuestionData.correctAnswer})`);
+        console.log(`🎯 Mapeo verificación: Botón ${button} vs Respuesta correcta ${currentQuestionData.correctAnswer}`);
+      }
+      
+      // Usar la función del contexto que tiene la lógica correcta
+      if (gameState === "playing" && handleAnswerBasedOnButton) {
+        handleAnswerBasedOnButton(button.toString());
+      }
     };
 
     socketRef.current.on("arduino-input", handleArduinoInput);
@@ -49,7 +52,7 @@ function App() {
       socketRef.current.off("arduino-input", handleArduinoInput);
       socketRef.current.disconnect();
     };
-  }, [handleAnswerBasedOnButton]);
+  }, [handleAnswerBasedOnButton, currentQuestion, gameState, selectedQuestions]);
 
   return (
     <>
